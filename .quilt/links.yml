@@ -1,0 +1,11 @@
+# .quilt/links.yml — the Reader's Fold manifest (jev-quilt Law 6).
+# This repo carries NO verdicts about its neighbors — only content-addressed
+# pointers each reader folds under its own weights. Edit this file; never edit
+# the generated block in README.md by hand.
+
+repo: chiaroscuro
+family: quilt
+
+provides:
+  - id: renderer-core
+    what: four real-time webcam-to-text renderers (Mirror/Sculptor/Studio/Director), five glyph-choice engines, one shared pipeline (downsample -> brightness -> edge -> character -> color -> atmosphere)

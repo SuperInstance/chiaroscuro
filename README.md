@@ -24,6 +24,7 @@ Four hundred years later: a webcam, an alphabet, and a per-cell decision.
 8. [Honest ledger](#honest-ledger)
 9. [Engineering notes](#engineering-notes)
 10. [Provenance](#provenance)
+11. [Cross-pollination — the Reader's Fold](#cross-pollination--the-readers-fold)
 
 ---
 
@@ -145,3 +146,14 @@ Failures first-class, as they should be:
 Built in one morning by a foreman agent and three GLM runners from a single dropped HTML file — the captain's. V1 is preserved byte-for-byte in [`mirror.html`](mirror.html), exactly as he sent it, `@@@@` redundancy and all. The archive rule here is the same as everywhere else in the fleet: **nothing good gets deleted, and the gold keeps its fingerprints.**
 
 *The eye does the rest.*
+
+<!-- QUILT:LINKS:START — generated from .quilt/links.yml by quilt-links.mjs. Do not edit by hand. -->
+## Cross-pollination — the Reader's Fold
+
+*Part of the **quilt** family. Under [Law 6](https://github.com/SuperInstance/jev-quilt), this repo carries no verdicts about its neighbors — only content-addressed pointers you fold under your own weights.*
+
+**Provides** (fold these from here)
+- `renderer-core` — four real-time webcam-to-text renderers (Mirror/Sculptor/Studio/Director), five glyph-choice engines, one shared pipeline (downsample -> brightness -> edge -> character -> color -> atmosphere)
+
+<sub>Regenerate: `node quilt-links.mjs` · Fleet map: [FLEET.md](https://github.com/SuperInstance/fleet-seeds/blob/main/FLEET.md)</sub>
+<!-- QUILT:LINKS:END -->
