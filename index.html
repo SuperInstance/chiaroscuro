@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>chiaroscuro — an alphabet against the light</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; background: #050507; color: #b9b9c9; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; }
+header { text-align: center; padding: 64px 20px 30px; }
+h1 { font-size: clamp(28px, 6vw, 54px); letter-spacing: 12px; color: #e8e6df; font-weight: normal; }
+h1 span { color: #6a6a88; }
+.sub { margin-top: 14px; font-size: 13px; color: #7a7a92; letter-spacing: 2px; }
+.def { margin-top: 26px; max-width: 560px; font-size: 13px; line-height: 1.7; color: #8a8a9f; font-style: italic; }
+.def b { color: #c9c9dd; font-style: normal; }
+.doors { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; padding: 40px 20px 20px; max-width: 1000px; }
+.door {
+  display: block; width: 220px; padding: 22px 18px; text-decoration: none;
+  border: 1px solid #23233a; border-radius: 10px; background: #0b0b12; color: #c9c9dd;
+  transition: transform .15s, border-color .15s, background .15s;
+}
+.door:hover { transform: translateY(-3px); border-color: #8f7fff; background: #10101c; }
+.door .num { font-size: 11px; color: #5a5a78; letter-spacing: 3px; }
+.door .name { font-size: 17px; margin: 8px 0 10px; color: #e8e6df; letter-spacing: 1px; }
+.door .desc { font-size: 11px; line-height: 1.6; color: #7a7a92; }
+footer { padding: 34px 20px 60px; font-size: 11px; color: #4a4a5e; text-align: center; letter-spacing: 1px; }
+footer a { color: #6a6a88; }
+</style>
+</head>
+<body>
+<header>
+  <h1>CHIARO<span>/</span>SCURO</h1>
+  <div class="sub">a webcam, an alphabet, and a per-cell decision</div>
+  <div class="def"><b>chiaroscuro</b> <i>n.</i> — 17th-century Italian: <b>chiaro</b> (clear) + <b>scuro</b> (obscure). Caravaggio had no outlines; he had contrast, and the eye did the rest. Four hundred years later: same trick, different pigment.</div>
+</header>
+<div class="doors">
+  <a class="door" href="https://fleet-static-host.casey-digennaro.workers.dev/mirror/">
+    <div class="num">DOOR Ⅰ</div><div class="name">The Mirror</div>
+    <div class="desc">Brightness becomes a glyph, painted in the pixel's own color. Sixteen steps. Honest the way a lake is honest.</div>
+  </a>
+  <a class="door" href="https://fleet-static-host.casey-digennaro.workers.dev/mirror2/">
+    <div class="num">DOOR Ⅱ</div><div class="name">The Sculptor</div>
+    <div class="desc">Characters as shapes: `╱` for a cheekbone's slope, `║` for a wall, braille dots for skin. Relief light from a virtual sun.</div>
+  </a>
+  <a class="door" href="https://fleet-static-host.casey-digennaro.workers.dev/studio/">
+    <div class="num">DOOR Ⅲ</div><div class="name">The Studio</div>
+    <div class="desc">Thirty dials, twelve worlds, both ancestors kept as presets. For hands that want to be busy.</div>
+  </a>
+  <a class="door" href="https://fleet-static-host.casey-digennaro.workers.dev/director/">
+    <div class="num">DOOR Ⅳ</div><div class="name">The Director</div>
+    <div class="desc">No dials. The engine reads your motion and light, composes a look, names it, and moves on when you do.</div>
+  </a>
+</div>
+<footer>
+  no frameworks · no build step · one html file per door · <a href="https://github.com/SuperInstance/chiaroscuro">view source is the documentation</a><br><br>
+  <i>the eye does the rest.</i>
+</footer>
+</body>
+</html>
