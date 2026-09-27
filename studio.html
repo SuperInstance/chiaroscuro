@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CHIAROSCURO — STUDIO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Silkscreen&family=IBM+Plex+Mono&family=Fira+Code&family=Orbitron&family=Libre+Barcode+39&family=MedievalSharp&family=Rubik+Glitch&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: #050507; font-family: 'Courier New', monospace; }
@@ -24,7 +27,7 @@ h1 { font-size: 13px; letter-spacing: 3px; color: #8f7fff; margin-bottom: 8px; }
 #presets button { background: #191926; color: #a9a9c5; border: 1px solid #2c2c40; border-radius: 4px; font-family: inherit; font-size: 10px; padding: 4px 7px; cursor: pointer; }
 #presets button:hover { background: #2a2a44; color: #fff; }
 #actions { position: sticky; bottom: 0; background: rgba(10,10,14,0.97); padding: 8px 0 4px; display: flex; gap: 6px; flex-wrap: wrap; }
-#actions button { flex: 1 1 40%; background: #26264a; color: #cfcfe6; border: 1px solid #3d3d6a; border-radius: 6px; font-family: inherit; font-size: 10px; padding: 7px 2px; cursor: pointer; letter-spacing: 1px; }
+#actions button { flex: 1 1 46%; background: #26264a; color: #cfcfe6; border: 1px solid #3d3d6a; border-radius: 6px; font-family: inherit; font-size: 10px; padding: 7px 2px; cursor: pointer; letter-spacing: 1px; }
 #actions button:hover { background: #38386a; }
 #actions button.gold { background: #3d2f10; border-color: #8a6a20; color: #ffd166; }
 #loadjson { display: none; }
@@ -43,10 +46,12 @@ h1 { font-size: 13px; letter-spacing: 3px; color: #8f7fff; margin-bottom: 8px; }
   <div class="group"><div class="gtitle">Motion &amp; Time</div><div id="c-motion"></div></div>
   <div class="group"><div class="gtitle">Atmosphere</div><div id="c-atmo"></div></div>
   <div id="actions">
-    <button id="btn-random">⤫ RANDOMIZE</button>
-    <button id="btn-share">⇪ SHARE LINK</button>
-    <button id="btn-save">⇩ SETTINGS .JSON</button>
+    <button id="btn-random">⤫ RANDOM</button>
+    <button id="btn-share">⇪ SHARE</button>
+    <button id="btn-fs">⛶ FULLSCREEN</button>
+    <button id="btn-save">⇩ .JSON</button>
     <button id="btn-export" class="gold">⇩ EXPORT RENDERER .HTML</button>
+    <button id="btn-term" class="gold">⇩ EXPORT TERMINAL APP .PY</button>
     <input type="file" id="loadjson" accept=".json">
     <button id="btn-load" style="flex-basis:100%">⇧ LOAD SETTINGS .JSON</button>
   </div>
@@ -69,6 +74,41 @@ const cv = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 
 const P = {};
+const FONT_MAP = { courier: "'Courier New', monospace", lucida: "'Lucida Console', monospace", consolas: "'Consolas', monospace", dejavu: "'DejaVu Sans Mono', monospace", serif: "Georgia, serif",
+  monospace: "monospace", menlo: "'Menlo', monospace", monaco: "'Monaco', monospace", andale: "'Andale Mono', monospace", liberation: "'Liberation Mono', monospace",
+  comicsans: "'Comic Sans MS', 'Comic Sans', cursive", impact: "Impact, 'Arial Black', sans-serif", papyrus: "Papyrus, fantasy", copperplate: "'Copperplate', 'Copperplate Gothic Light', fantasy",
+  brushscript: "'Brush Script MT', cursive", times: "'Times New Roman', serif", palatino: "Palatino, 'Palatino Linotype', serif", garamond: "Garamond, serif",
+  wingdings: "'Wingdings', 'Wingdings 2', monospace", webdings: "Webdings, monospace", symbol: "Symbol, monospace", segoe: "'Segoe UI Symbol', sans-serif",
+  ps2p: "'Press Start 2P', monospace", vt323: "'VT323', monospace", silkscreen: "'Silkscreen', monospace", plexmono: "'IBM Plex Mono', monospace",
+  firacode: "'Fira Code', monospace", orbitron: "'Orbitron', monospace", barcode39: "'Libre Barcode 39', cursive", medieval: "'MedievalSharp', cursive", rubikglitch: "'Rubik Glitch', monospace" };
+const FONT_LABELS = { courier: 'Courier New — the classic terminal', lucida: 'Lucida Console — chunky DOS', consolas: 'Consolas — clean modern mono', dejavu: 'DejaVu Sans Mono — Linux native', serif: 'Georgia — soft serif (wild)',
+  monospace: 'System monospace', menlo: 'Menlo — Mac terminal', monaco: 'Monaco — classic Mac', andale: 'Andale Mono', liberation: 'Liberation Mono',
+  comicsans: 'Comic Sans MS — the people’s font', impact: 'Impact — meme weight', papyrus: 'Papyrus — yes, really', copperplate: 'Copperplate — engraved plaque',
+  brushscript: 'Brush Script — your face, signed', times: 'Times New Roman — newspaper', palatino: 'Palatino — bookish', garamond: 'Garamond — old book older',
+  wingdings: 'Wingdings — pictographs (every glyph a doodad)', webdings: 'Webdings — more pictographs', symbol: 'Symbol — greek math soup', segoe: 'Segoe UI Symbol — emoji-adjacent',
+  ps2p: 'Press Start 2P — 8-bit arcade (webfont)', vt323: 'VT323 — glass terminal (webfont)', silkscreen: 'Silkscreen — pixel LCD (webfont)', plexmono: 'IBM Plex Mono — engineer’s mono (webfont)',
+  firacode: 'Fira Code — ligatures (webfont)', orbitron: 'Orbitron — sci-fi (webfont)', barcode39: 'Libre Barcode 39 — your face, scannable (webfont)', medieval: 'MedievalSharp — illuminated (webfont)', rubikglitch: 'Rubik Glitch — broken signs (webfont)' };
+
+// ---------- presets (old 12 + engine showcases) ----------
+const PRESETS = {
+  '① The Original': { engine:'glyph', density:100, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:25, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:100, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:0, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:0, edgeThresh:4, colMode:'original', hue:120, sat:100, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#050507', trail:0, smooth:0, glitch:0, grain:0, scan:0, vignette:0, bloom:0 },
+  '② The Sculptor': { engine:'glyph', density:100, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:25, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'fine', rampCustom:'', toneAmt:100, edgeAmt:100, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:45, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:55, edgeThresh:4, colMode:'original', hue:120, sat:100, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#030304', trail:0, smooth:0, glitch:0, grain:0, scan:0, vignette:0, bloom:0 },
+  'Green Matrix':   { engine:'glyph', density:130, cellAspect:55, glyphSize:95, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:5, contrast:40, gamma:90, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:100, edgeAmt:20, edgeGain:10, edgeStyle:'sobel', edgeColor:'source', brailleAmt:20, dotGain:50, dither:30, posterize:0, lightAngle:315, relief:25, edgeThresh:4, colMode:'phosphor', hue:120, sat:100, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#000f00', trail:35, smooth:0, glitch:0, grain:35, scan:60, vignette:55, bloom:8 },
+  'Amber Terminal': { engine:'glyph', density:110, cellAspect:60, glyphSize:100, font:'lucida', jitter:0, mirror:true, kaleido:0, zoom:100, fps:24, brightness:0, contrast:45, gamma:85, blackPt:0, whitePt:255, invert:false, ramp:'fine', rampCustom:'', toneAmt:100, edgeAmt:15, edgeGain:9, edgeStyle:'sobel', edgeColor:'source', brailleAmt:10, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:20, edgeThresh:4, colMode:'phosphor', hue:36, sat:110, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#140a00', trail:20, smooth:0, glitch:0, grain:25, scan:70, vignette:60, bloom:6 },
+  'Ink & Paper':    { engine:'glyph', density:120, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:10, contrast:35, gamma:110, blackPt:0, whitePt:255, invert:true, ramp:'fine', rampCustom:'', toneAmt:100, edgeAmt:35, edgeGain:11, edgeStyle:'sobel', edgeColor:'source', brailleAmt:15, dotGain:50, dither:20, posterize:0, lightAngle:315, relief:35, edgeThresh:3, colMode:'ink', hue:220, sat:0, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#f2efe6', trail:0, smooth:0, glitch:0, grain:15, scan:0, vignette:0, bloom:0 },
+  'Blueprint':      { engine:'glyph', density:100, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:50, gamma:80, blackPt:0, whitePt:255, invert:false, ramp:'minimal', rampCustom:'', toneAmt:25, edgeAmt:100, edgeGain:14, edgeStyle:'sobel', edgeColor:'white', brailleAmt:0, dotGain:50, dither:0, posterize:0, lightAngle:135, relief:70, edgeThresh:3, colMode:'duotone', hue:220, sat:0, temp:0, shadowCol:'#062a66', highCol:'#cfe6ff', bgCol:'#031233', trail:0, smooth:0, glitch:0, grain:8, scan:0, vignette:30, bloom:0 },
+  'Neon Noir':      { engine:'glyph', density:120, cellAspect:55, glyphSize:105, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:-5, contrast:55, gamma:85, blackPt:0, whitePt:255, invert:false, ramp:'blocks', rampCustom:'', toneAmt:80, edgeAmt:60, edgeGain:10, edgeStyle:'sobel', edgeColor:'source', brailleAmt:35, dotGain:50, dither:0, posterize:0, lightAngle:45, relief:65, edgeThresh:4, colMode:'duotone', hue:300, sat:0, temp:0, shadowCol:'#2a004f', highCol:'#00f6ff', bgCol:'#05000c', trail:15, smooth:0, glitch:5, grain:30, scan:25, vignette:65, bloom:14 },
+  'Ghost':          { engine:'glyph', density:90, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:20, brightness:0, contrast:30, gamma:140, blackPt:0, whitePt:255, invert:true, ramp:'stars', rampCustom:'', toneAmt:100, edgeAmt:25, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:30, dotGain:50, dither:15, posterize:0, lightAngle:270, relief:40, edgeThresh:5, colMode:'phosphor', hue:180, sat:30, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#0b0d12', trail:30, smooth:30, glitch:0, grain:20, scan:0, vignette:45, bloom:10 },
+  'Wireframe':      { engine:'glyph', density:80, cellAspect:60, glyphSize:110, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:55, gamma:70, blackPt:0, whitePt:255, invert:false, ramp:'minimal', rampCustom:'', toneAmt:0, edgeAmt:100, edgeGain:15, edgeStyle:'sobel', edgeColor:'white', brailleAmt:0, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:80, edgeThresh:5, colMode:'phosphor', hue:150, sat:80, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#020403', trail:0, smooth:0, glitch:0, grain:0, scan:0, vignette:35, bloom:4 },
+  'Molten':         { engine:'glyph', density:110, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:40, gamma:95, blackPt:0, whitePt:255, invert:false, ramp:'blocks', rampCustom:'', toneAmt:90, edgeAmt:40, edgeGain:9, edgeStyle:'emboss', edgeColor:'source', brailleAmt:20, dotGain:50, dither:25, posterize:0, lightAngle:90, relief:50, edgeThresh:4, colMode:'heatmap', hue:30, sat:120, temp:20, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#0c0200', trail:10, smooth:0, glitch:0, grain:20, scan:0, vignette:50, bloom:12 },
+  'Deep Sea':       { engine:'glyph', density:95, cellAspect:62, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:20, brightness:-10, contrast:35, gamma:120, blackPt:0, whitePt:255, invert:false, ramp:'runes', rampCustom:'', toneAmt:85, edgeAmt:45, edgeGain:10, edgeStyle:'sobel', edgeColor:'source', brailleAmt:25, dotGain:50, dither:10, posterize:0, lightAngle:200, relief:55, edgeThresh:4, colMode:'duotone', hue:200, sat:0, temp:-30, shadowCol:'#001220', highCol:'#7fd4c1', bgCol:'#01080f', trail:20, smooth:20, glitch:0, grain:15, scan:0, vignette:60, bloom:6 },
+  'Pulp Comic':     { engine:'glyph', density:70, cellAspect:60, glyphSize:125, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:10, contrast:65, gamma:75, blackPt:0, whitePt:255, invert:false, ramp:'blocks', rampCustom:'', toneAmt:100, edgeAmt:70, edgeGain:13, edgeStyle:'sobel', edgeColor:'black', brailleAmt:0, dotGain:50, dither:0, posterize:4, lightAngle:315, relief:45, edgeThresh:6, colMode:'original', hue:120, sat:170, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#fff8ee', trail:0, smooth:0, glitch:0, grain:10, scan:0, vignette:0, bloom:0 },
+  'Silver Halide':  { engine:'pixel', density:120, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:30, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:100, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:0, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:0, edgeThresh:4, colMode:'original', hue:120, sat:15, temp:-10, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#000000', trail:0, smooth:0, glitch:0, grain:30, scan:0, vignette:45, bloom:0 },
+  'Dotscape':       { engine:'braille', density:110, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:35, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:0, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:100, dotGain:60, dither:0, posterize:0, lightAngle:315, relief:0, edgeThresh:4, colMode:'duotone', hue:260, sat:0, temp:0, shadowCol:'#140a3a', highCol:'#e8e0ff', bgCol:'#060412', trail:0, smooth:0, glitch:0, grain:10, scan:0, vignette:35, bloom:6 },
+  'Halftone Press': { engine:'halftone', density:90, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:5, contrast:40, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:100, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'black', brailleAmt:0, dotGain:70, dither:0, posterize:0, lightAngle:315, relief:0, edgeThresh:4, colMode:'ink', hue:220, sat:0, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#f4f1e8', trail:0, smooth:0, glitch:0, grain:8, scan:0, vignette:0, bloom:0 },
+  'Woodcut Match':  { engine:'match', density:80, cellAspect:60, glyphSize:110, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:20, brightness:0, contrast:45, gamma:90, blackPt:0, whitePt:255, invert:false, ramp:'fine', rampCustom:'', toneAmt:100, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:0, dotGain:50, dither:10, posterize:5, lightAngle:315, relief:30, edgeThresh:4, colMode:'ink', hue:220, sat:0, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#efe9da', trail:0, smooth:0, glitch:0, grain:12, scan:0, vignette:20, bloom:0 },
+};
+
 const DEFS = {
   engine: [
     { k: 'engine', label: 'Methodology', type: 'select', options: {
@@ -105,7 +145,7 @@ const DEFS = {
     { k: 'density', label: 'Density', min: 30, max: 200, v: 100 },
     { k: 'cellAspect', label: 'Cell shape %', min: 40, max: 90, v: 60 },
     { k: 'glyphSize', label: 'Glyph scale', min: 70, max: 130, v: 100 },
-    { k: 'font', label: 'Typeface', type: 'select', options: { courier: 'Courier New', lucida: 'Lucida Console', consolas: 'Consolas', dejavu: 'DejaVu Sans Mono', serif: 'Serif (wild)' }, v: 'courier' },
+    { k: 'font', label: 'Typeface', type: 'select', options: (function(){ const o={}; for (const k in FONT_LABELS) o[k]=FONT_LABELS[k]; return o; })(), v: 'courier' },
     { k: 'jitter', label: 'Jitter', min: 0, max: 100, v: 0 },
     { k: 'mirror', label: 'Mirror flip', type: 'check', v: true },
     { k: 'kaleido', label: 'Kaleidoscope', min: 0, max: 4, v: 0 },
@@ -149,28 +189,6 @@ const DEFS = {
 function applyDefs() { for (const g in DEFS) for (const d of DEFS[g]) P[d.k] = d.v; }
 applyDefs();
 const RAMP_SETS = DEFS.engine.find(d => d.k === 'ramp').options;
-const FONT_MAP = { courier: "'Courier New', monospace", lucida: "'Lucida Console', monospace", consolas: "'Consolas', monospace", dejavu: "'DejaVu Sans Mono', monospace", serif: "Georgia, serif" };
-
-// ---------- presets (old 12 + engine showcases) ----------
-const PRESETS = {
-  '① The Original': { engine:'glyph', density:100, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:25, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:100, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:0, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:0, edgeThresh:4, colMode:'original', hue:120, sat:100, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#050507', trail:0, smooth:0, glitch:0, grain:0, scan:0, vignette:0, bloom:0 },
-  '② The Sculptor': { engine:'glyph', density:100, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:25, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'fine', rampCustom:'', toneAmt:100, edgeAmt:100, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:45, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:55, edgeThresh:4, colMode:'original', hue:120, sat:100, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#030304', trail:0, smooth:0, glitch:0, grain:0, scan:0, vignette:0, bloom:0 },
-  'Green Matrix':   { engine:'glyph', density:130, cellAspect:55, glyphSize:95, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:5, contrast:40, gamma:90, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:100, edgeAmt:20, edgeGain:10, edgeStyle:'sobel', edgeColor:'source', brailleAmt:20, dotGain:50, dither:30, posterize:0, lightAngle:315, relief:25, edgeThresh:4, colMode:'phosphor', hue:120, sat:100, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#000f00', trail:35, smooth:0, glitch:0, grain:35, scan:60, vignette:55, bloom:8 },
-  'Amber Terminal': { engine:'glyph', density:110, cellAspect:60, glyphSize:100, font:'lucida', jitter:0, mirror:true, kaleido:0, zoom:100, fps:24, brightness:0, contrast:45, gamma:85, blackPt:0, whitePt:255, invert:false, ramp:'fine', rampCustom:'', toneAmt:100, edgeAmt:15, edgeGain:9, edgeStyle:'sobel', edgeColor:'source', brailleAmt:10, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:20, edgeThresh:4, colMode:'phosphor', hue:36, sat:110, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#140a00', trail:20, smooth:0, glitch:0, grain:25, scan:70, vignette:60, bloom:6 },
-  'Ink & Paper':    { engine:'glyph', density:120, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:10, contrast:35, gamma:110, blackPt:0, whitePt:255, invert:true, ramp:'fine', rampCustom:'', toneAmt:100, edgeAmt:35, edgeGain:11, edgeStyle:'sobel', edgeColor:'source', brailleAmt:15, dotGain:50, dither:20, posterize:0, lightAngle:315, relief:35, edgeThresh:3, colMode:'ink', hue:220, sat:0, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#f2efe6', trail:0, smooth:0, glitch:0, grain:15, scan:0, vignette:0, bloom:0 },
-  'Blueprint':      { engine:'glyph', density:100, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:50, gamma:80, blackPt:0, whitePt:255, invert:false, ramp:'minimal', rampCustom:'', toneAmt:25, edgeAmt:100, edgeGain:14, edgeStyle:'sobel', edgeColor:'white', brailleAmt:0, dotGain:50, dither:0, posterize:0, lightAngle:135, relief:70, edgeThresh:3, colMode:'duotone', hue:220, sat:0, temp:0, shadowCol:'#062a66', highCol:'#cfe6ff', bgCol:'#031233', trail:0, smooth:0, glitch:0, grain:8, scan:0, vignette:30, bloom:0 },
-  'Neon Noir':      { engine:'glyph', density:120, cellAspect:55, glyphSize:105, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:-5, contrast:55, gamma:85, blackPt:0, whitePt:255, invert:false, ramp:'blocks', rampCustom:'', toneAmt:80, edgeAmt:60, edgeGain:10, edgeStyle:'sobel', edgeColor:'source', brailleAmt:35, dotGain:50, dither:0, posterize:0, lightAngle:45, relief:65, edgeThresh:4, colMode:'duotone', hue:300, sat:0, temp:0, shadowCol:'#2a004f', highCol:'#00f6ff', bgCol:'#05000c', trail:15, smooth:0, glitch:5, grain:30, scan:25, vignette:65, bloom:14 },
-  'Ghost':          { engine:'glyph', density:90, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:20, brightness:0, contrast:30, gamma:140, blackPt:0, whitePt:255, invert:true, ramp:'stars', rampCustom:'', toneAmt:100, edgeAmt:25, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:30, dotGain:50, dither:15, posterize:0, lightAngle:270, relief:40, edgeThresh:5, colMode:'phosphor', hue:180, sat:30, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#0b0d12', trail:30, smooth:30, glitch:0, grain:20, scan:0, vignette:45, bloom:10 },
-  'Wireframe':      { engine:'glyph', density:80, cellAspect:60, glyphSize:110, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:55, gamma:70, blackPt:0, whitePt:255, invert:false, ramp:'minimal', rampCustom:'', toneAmt:0, edgeAmt:100, edgeGain:15, edgeStyle:'sobel', edgeColor:'white', brailleAmt:0, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:80, edgeThresh:5, colMode:'phosphor', hue:150, sat:80, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#020403', trail:0, smooth:0, glitch:0, grain:0, scan:0, vignette:35, bloom:4 },
-  'Molten':         { engine:'glyph', density:110, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:40, gamma:95, blackPt:0, whitePt:255, invert:false, ramp:'blocks', rampCustom:'', toneAmt:90, edgeAmt:40, edgeGain:9, edgeStyle:'emboss', edgeColor:'source', brailleAmt:20, dotGain:50, dither:25, posterize:0, lightAngle:90, relief:50, edgeThresh:4, colMode:'heatmap', hue:30, sat:120, temp:20, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#0c0200', trail:10, smooth:0, glitch:0, grain:20, scan:0, vignette:50, bloom:12 },
-  'Deep Sea':       { engine:'glyph', density:95, cellAspect:62, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:20, brightness:-10, contrast:35, gamma:120, blackPt:0, whitePt:255, invert:false, ramp:'runes', rampCustom:'', toneAmt:85, edgeAmt:45, edgeGain:10, edgeStyle:'sobel', edgeColor:'source', brailleAmt:25, dotGain:50, dither:10, posterize:0, lightAngle:200, relief:55, edgeThresh:4, colMode:'duotone', hue:200, sat:0, temp:-30, shadowCol:'#001220', highCol:'#7fd4c1', bgCol:'#01080f', trail:20, smooth:20, glitch:0, grain:15, scan:0, vignette:60, bloom:6 },
-  'Pulp Comic':     { engine:'glyph', density:70, cellAspect:60, glyphSize:125, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:10, contrast:65, gamma:75, blackPt:0, whitePt:255, invert:false, ramp:'blocks', rampCustom:'', toneAmt:100, edgeAmt:70, edgeGain:13, edgeStyle:'sobel', edgeColor:'black', brailleAmt:0, dotGain:50, dither:0, posterize:4, lightAngle:315, relief:45, edgeThresh:6, colMode:'original', hue:120, sat:170, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#fff8ee', trail:0, smooth:0, glitch:0, grain:10, scan:0, vignette:0, bloom:0 },
-  'Silver Halide':  { engine:'pixel', density:120, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:30, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:100, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:0, dotGain:50, dither:0, posterize:0, lightAngle:315, relief:0, edgeThresh:4, colMode:'original', hue:120, sat:15, temp:-10, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#000000', trail:0, smooth:0, glitch:0, grain:30, scan:0, vignette:45, bloom:0 },
-  'Dotscape':       { engine:'braille', density:110, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:0, contrast:35, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:0, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:100, dotGain:60, dither:0, posterize:0, lightAngle:315, relief:0, edgeThresh:4, colMode:'duotone', hue:260, sat:0, temp:0, shadowCol:'#140a3a', highCol:'#e8e0ff', bgCol:'#060412', trail:0, smooth:0, glitch:0, grain:10, scan:0, vignette:35, bloom:6 },
-  'Halftone Press': { engine:'halftone', density:90, cellAspect:60, glyphSize:100, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:30, brightness:5, contrast:40, gamma:100, blackPt:0, whitePt:255, invert:false, ramp:'classic', rampCustom:'', toneAmt:100, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'black', brailleAmt:0, dotGain:70, dither:0, posterize:0, lightAngle:315, relief:0, edgeThresh:4, colMode:'ink', hue:220, sat:0, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#f4f1e8', trail:0, smooth:0, glitch:0, grain:8, scan:0, vignette:0, bloom:0 },
-  'Woodcut Match':  { engine:'match', density:80, cellAspect:60, glyphSize:110, font:'courier', jitter:0, mirror:true, kaleido:0, zoom:100, fps:20, brightness:0, contrast:45, gamma:90, blackPt:0, whitePt:255, invert:false, ramp:'fine', rampCustom:'', toneAmt:100, edgeAmt:0, edgeGain:8, edgeStyle:'sobel', edgeColor:'source', brailleAmt:0, dotGain:50, dither:10, posterize:5, lightAngle:315, relief:30, edgeThresh:4, colMode:'ink', hue:220, sat:0, temp:0, shadowCol:'#0a1030', highCol:'#ffd166', bgCol:'#efe9da', trail:0, smooth:0, glitch:0, grain:12, scan:0, vignette:20, bloom:0 },
-};
-
 // ---------- UI build ----------
 function buildGroup(groupId, defs) {
   const host = document.getElementById(groupId);
@@ -259,6 +277,140 @@ document.getElementById('loadjson').addEventListener('change', async (e) => {
   const f = e.target.files[0]; if (!f) return;
   try { Object.assign(P, JSON.parse(await f.text())); refreshUI(); } catch (err) { alert('bad settings file'); }
 });
+document.getElementById('btn-fs').addEventListener('click', () => {
+  const el = document.documentElement;
+  if (document.fullscreenElement) document.exitFullscreen();
+  else el.requestFullscreen && el.requestFullscreen();
+});
+document.getElementById('btn-term').addEventListener('click', () => {
+  // TERMINAL APP: a standalone Python renderer (OpenCV) with your settings baked in.
+  const sub = {};
+  for (const k of ['engine','ramp','rampCustom','density','brightness','contrast','gamma','blackPt','whitePt','invert','posterize','toneAmt','edgeAmt','edgeGain','edgeStyle','edgeThresh','colMode','hue','sat','temp','shadowCol','highCol','mirror']) sub[k] = P[k];
+  if (sub.engine !== 'glyph' && sub.engine !== 'pixel') sub.engine = sub.engine === 'halftone' ? 'glyph' : 'pixel';
+  const py = buildTermApp(sub);
+  const blob = new Blob([py], { type: 'text/x-python' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'chiaroscuro-terminal.py';
+  a.click(); URL.revokeObjectURL(a.href);
+});
+function buildTermApp(S) {
+  return "#!/usr/bin/env python3\n" +
+"# chiaroscuro terminal renderer — exported from the Studio\n" +
+"# deps:  pip install opencv-python      run:  python chiaroscuro-terminal.py      quit: Ctrl-C\n" +
+"# Your look, in a real terminal: truecolor ANSI, half-blocks, edge glyphs.\n" +
+"import sys, math, cv2, numpy as np\n" +
+"\nP = " + JSON.stringify(S, null, 1) + "\n" +
+"\nESC = chr(27)\n" +
+"def fg(r,g,b): return ESC + '[38;2;' + str(int(r)) + ';' + str(int(g)) + ';' + str(int(b)) + 'm'\n" +
+"RESET = ESC + '[0m'\n" +
+"RAMPS = {\n" +
+" 'classic': ' .:-=+*#%@@',\n" +
+" 'fine': " + JSON.stringify(" .'`^\",:;Il!i><~+_-?][}{1)(|\\\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$") + ",\n" +
+" 'blocks': ' ░▒▓█', 'minimal': ' .:*#', 'stars': '·∴∗✦✱✳❋█',\n" +
+" 'runes': '·ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃ█', 'binary': ' 01', 'code': ' {}[]()<>/\\\\|=+*', 'waves': '·≈≋▒▓█'}\n" +
+"RAMP = P.get('rampCustom') or RAMPS.get(P['ramp'], RAMPS['classic'])\n" +
+"DIRS = ('─','╱','│','╲')\n" +
+"def hsl(h, l):\n" +
+"    h = (h % 360) / 360.0\n" +
+"    import colorsys\n" +
+"    r, g, b = colorsys.hls_to_rgb(h, max(0.0, min(1.0, l)), 0.85)\n" +
+"    return (r*255, g*255, b*255)\n" +
+"def hex2rgb(hx):\n" +
+"    hx = hx.lstrip('#')\n" +
+"    return tuple(int(hx[i:i+2], 16) for i in (0, 2, 4))\n" +
+"def paint(rgb, L):\n" +
+"    r, g, b = rgb\n" +
+"    gray = 0.299*r + 0.587*g + 0.114*b\n" +
+"    s = P.get('sat', 100)/100.0\n" +
+"    r, g, b = gray+(r-gray)*s, gray+(g-gray)*s, gray+(b-gray)*s\n" +
+"    t = P.get('temp', 0) * 0.35\n" +
+"    r, b = min(255, r+t), max(0, b-t)\n" +
+"    m = P['colMode']\n" +
+"    if m == 'phosphor': return hsl(P.get('hue', 120), 0.04 + L*0.85)\n" +
+"    if m == 'duotone':\n" +
+"        a, c = hex2rgb(P.get('shadowCol', '#0a1030')), hex2rgb(P.get('highCol', '#ffd166'))\n" +
+"        return tuple(a[i] + (c[i]-a[i])*max(0.0, min(1.0, L/255.0)) for i in range(3))\n" +
+"    if m == 'heatmap': return hsl((300 - L/255.0*300) % 360, 0.2 + L*0.25)\n" +
+"    if m == 'ink':\n" +
+"        v = 255 - L\n" +
+"        return (v, v, v)\n" +
+"    return (r, g, b)\n" +
+"def main():\n" +
+"    cap = cv2.VideoCapture(0)\n" +
+"    if not cap.isOpened():\n" +
+"        print('no camera found'); return\n" +
+"    sys.stdout.write(ESC + '[?25l' + ESC + '[2J')\n" +
+"    ok, frame = cap.read()\n" +
+"    fh, fw = frame.shape[:2]\n" +
+"    cols = P['density']\n" +
+"    rows = max(2, int(cols * fh / fw * 0.5))\n" +
+"    try:\n" +
+"        while True:\n" +
+"            ok, frame = cap.read()\n" +
+"            if not ok: break\n" +
+"            if P.get('mirror', True): frame = cv2.flip(frame, 1)\n" +
+"            small = cv2.resize(frame, (cols, rows))\n" +
+"            lum = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY).astype(np.float32)\n" +
+"            con = P['contrast']/25.0\n" +
+"            lum = np.clip((lum - 128.0) * con + 128.0 + P['brightness']*2.2, 0, 255)\n" +
+"            lum = 255.0 * np.power(np.clip(lum/255.0, 0, 1), P['gamma']/100.0)\n" +
+"            lum = np.clip((lum - P['blackPt']) / max(1, P['whitePt'] - P['blackPt']) * 255.0, 0, 255)\n" +
+"            if P.get('invert'): lum = 255.0 - lum\n" +
+"            if P.get('posterize', 0) > 1:\n" +
+"                lv = P['posterize'] - 1\n" +
+"                lum = np.round(lum/255.0*lv)/lv*255.0\n" +
+"            gx = cv2.Sobel(lum, cv2.CV_32F, 1, 0, ksize=3)\n" +
+"            gy = cv2.Sobel(lum, cv2.CV_32F, 0, 1, ksize=3)\n" +
+"            mag = np.sqrt(gx*gx + gy*gy) / 1020.0\n" +
+"            lines = []\n" +
+"            if P['engine'] == 'pixel':\n" +
+"                small2 = cv2.resize(frame, (cols, rows*2))\n" +
+"                for y in range(rows):\n" +
+"                    row = ''\n" +
+"                    for x in range(cols):\n" +
+"                        pt = small2[y*2, x][::-1]; pb = small2[y*2+1, x][::-1]\n" +
+"                        Lt = float(lum[y, x]); Lb = float(lum[min(rows-1, y+1), x])\n" +
+"                        ct, cb2 = paint(pt, Lt), paint(pb, Lb)\n" +
+"                        row += fg(*cb2) + ESC + '[48;2;' + str(int(ct[0])) + ';' + str(int(ct[1])) + ';' + str(int(ct[2])) + 'm' + '▀'\n" +
+"                    lines.append(row + RESET)\n" +
+"            else:\n" +
+"                rl = len(RAMP)\n" +
+"                tm, em = P.get('toneAmt', 100)/100.0, P.get('edgeAmt', 0)/100.0\n" +
+"                thr = P.get('edgeThresh', 4)/100.0\n" +
+"                for y in range(rows):\n" +
+"                    row = ''\n" +
+"                    for x in range(cols):\n" +
+"                        L = float(lum[y, x])\n" +
+"                        rgb = small[y, x][::-1]\n" +
+"                        m2 = float(mag[y, x])\n" +
+"                        ch = None\n" +
+"                        if em > 0 and m2 > thr:\n" +
+"                            ang = math.degrees(math.atan2(float(gy[y, x]), float(gx[y, x]))) % 180\n" +
+"                            fam = 0\n" +
+"                            if 22.5 <= ang < 67.5: fam = 1\n" +
+"                            elif 67.5 <= ang < 112.5: fam = 2\n" +
+"                            elif 112.5 <= ang < 157.5: fam = 3\n" +
+"                            ch = DIRS[fam]\n" +
+"                        if ch is None and tm > 0.05:\n" +
+"                            ch = RAMP[min(rl-1, int((1.0 - L/255.0) * rl))]\n" +
+"                            if ch == ' ': ch = None\n" +
+"                        if ch is None:\n" +
+"                            row += ' '\n" +
+"                        else:\n" +
+"                            cr, cg, cb3 = paint(rgb, L)\n" +
+"                            row += fg(cr, cg, cb3) + ch\n" +
+"                    lines.append(row + RESET)\n" +
+"            sys.stdout.write(ESC + '[H' + chr(10).join(lines))\n" +
+"            sys.stdout.flush()\n" +
+"    except KeyboardInterrupt:\n" +
+"        pass\n" +
+"    finally:\n" +
+"        cap.release()\n" +
+"        sys.stdout.write(RESET + ESC + '[?25h' + chr(10))\n" +
+"if __name__ == '__main__':\n" +
+"    main()\n";
+}
 // boot: exported defaults > hash > ?preset=
 try { if (window.CHIARO_EXPORT) Object.assign(P, window.CHIARO_EXPORT); } catch (e) {}
 try { const h = location.hash.slice(1); if (h) Object.assign(P, JSON.parse(decodeURIComponent(h))); } catch (e) {}
