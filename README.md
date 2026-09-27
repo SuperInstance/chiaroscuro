@@ -98,7 +98,7 @@ The Studio is the tool of the family. Its engine selector swaps the *entire meth
 - **Shape-match** — template-matched glyphs. Each cell's patch is compared against every ramp glyph rasterized to a 4×6 bitmap; the closest match (Hamming distance) wins. The renderer literally asks *"which letter looks most like this patch?"* *Woodcut Match* renders like a block print.
 - **Halftone** — ink dots with radius driven by brightness. A newspaper press for your face.
 
-Around the engines, the dials cover every stage of the pipeline: edge detector choice (Sobel, emboss, Laplacian) and edge paint; black/white points, posterize, dot gain, dither; color temperature, duotone, heatmap, phosphor hue; trails (phosphor persistence), temporal blending, glitch strips; kaleidoscope, zoom, jitter; five typefaces and nine ramps — including a custom ramp field, because your alphabet should be yours.
+Around the engines, the dials cover every stage of the pipeline: edge detector choice (Sobel, emboss, Laplacian) and edge paint; black/white points, posterize, dot gain, dither; color temperature, duotone, heatmap, phosphor hue; trails (phosphor persistence), temporal blending, glitch strips; kaleidoscope, zoom, jitter; nine ramps — including a custom ramp field, because your alphabet should be yours — and **31 typefaces**, because your letterforms should be too: five terminal monos, the serifs (Georgia through Garamond), Comic Sans MS and Impact and Papyrus (*yes, really*), the pictograph dingbats (Wingdings, Webdings, Symbol — every glyph a doodad), and nine webfonts for the exotic, from Press Start 2P to Libre Barcode 39. Yes: a barcode face. Your face, scannable at the grocery store.
 
 Sixteen presets, and both ancestors are in there as ① The Original and ② The Sculptor — you can stand exactly where the project stood at door one, with every dial around you.
 
@@ -106,17 +106,15 @@ One honest note: **Shape-match is the slowest engine** (~20fps at high density).
 
 ## Exporting your renderer
 
-This is the part that makes the Studio a tool instead of a toy.
+This is the part that makes the Studio a tool instead of a toy. Three exports, three destinations:
 
-Once you've dialed in something that's *yours* — the exact good you picked — press the gold button:
+**⇩ EXPORT RENDERER .HTML** — the gold button. You get a download of *this exact application* with your settings baked in as its boot state and the control panel stripped out. One self-contained file, no dependencies, no network, no build step. Open it anywhere and it renders forever in your look.
 
-> **⇩ EXPORT RENDERER .HTML**
+**⇩ EXPORT TERMINAL APP .PY** — for novel applications: a standalone Python script (OpenCV) with your settings baked in, rendering live in a real terminal — ANSI 24-bit truecolor, half-block photographic mode, edge glyphs, phosphor/duotone/heatmap/ink. `pip install opencv-python`, run it, Ctrl-C to quit. SSH to a box across the room or across the ocean and your look renders there at text-native resolution — the purest form this art has, because it was *born* in terminals.
 
-You get a download of *this exact application* with your settings baked in as its boot state and the control panel stripped out. One self-contained file, no dependencies, no network, no build step. Open it anywhere and it renders forever in your look.
+It earns the word "renderer": what you tuned wasn't a filter preset, it was the decision procedure — which engine measures what, and how the frame becomes text. The exports *are* that procedure, frozen three ways: `.html` (your renderer as a page), `.json` (your numbers), `.py` (your renderer in a terminal).
 
-It earns the word "renderer": what you tuned wasn't a filter preset, it was the decision procedure — which engine measures what, and how the frame becomes text. The export *is* that procedure, frozen.
-
-There are also **⇩ SETTINGS .JSON** (just the numbers, portable) and **⇧ LOAD** (apply a settings file), plus **⇪ SHARE LINK** (settings encoded in the URL — the link is the preset).
+There's also **⇪ SHARE LINK** (settings encoded in the URL — the link is the preset) and **⛶ FULLSCREEN**, for when the look is done talking and should just be looked at.
 
 ---
 
