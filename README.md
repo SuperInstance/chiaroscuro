@@ -8,7 +8,8 @@ Four hundred years later: a webcam, an alphabet, and a per-cell decision.
 [Ⅰ Mirror](https://fleet-static-host.casey-digennaro.workers.dev/mirror/) ·
 [Ⅱ Sculptor](https://fleet-static-host.casey-digennaro.workers.dev/mirror2/) ·
 [Ⅲ Studio](https://fleet-static-host.casey-digennaro.workers.dev/studio/) ·
-[Ⅳ Director](https://fleet-static-host.casey-digennaro.workers.dev/director/)
+[Ⅳ Director](https://fleet-static-host.casey-digennaro.workers.dev/director/) ·
+[Ⅴ Viewfinder](https://fleet-static-host.casey-digennaro.workers.dev/viewfinder/)
 
 ---
 
