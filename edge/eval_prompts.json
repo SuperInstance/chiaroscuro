@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "pre_registered": "R2 — committed before any accuracy claim",
+    "eval_set": "chiaroscuro-edge-50 v1",
+    "date": "2026-10-01",
+    "classes": ["woodcut", "terminal", "soft", "harsh", "default"],
+    "rules": "edge/worker.ts STYLE_RULES (first keyword match wins, else default)",
+    "expected_dials": {
+      "woodcut":  {"contrast": 1.8, "blackPoint": 0.40, "trailDecay": 0.4, "edgePaint": 0.9},
+      "terminal": {"contrast": 1.4, "blackPoint": 0.25, "trailDecay": 0.8, "edgePaint": 0.1},
+      "soft":     {"contrast": 0.9, "blackPoint": 0.05, "trailDecay": 0.9, "edgePaint": 0.0},
+      "harsh":    {"contrast": 2.1, "blackPoint": 0.50, "trailDecay": 0.2, "edgePaint": 1.0},
+      "default":  {"contrast": 1.3, "blackPoint": 0.15, "trailDecay": 0.5, "edgePaint": 0.3}
+    }
+  },
+  "prompts": [
+    {"id": "wc01", "prompt": "heavy woodcut carving", "label_class": "woodcut"},
+    {"id": "wc02", "prompt": "make it look like a woodcut print", "label_class": "woodcut"},
+    {"id": "wc03", "prompt": "carved into oak", "label_class": "woodcut"},
+    {"id": "wc04", "prompt": "engraving style, deep cuts", "label_class": "woodcut"},
+    {"id": "wc05", "prompt": "block print texture", "label_class": "woodcut"},
+    {"id": "wc06", "prompt": "I want carved lines like a relief print", "label_class": "woodcut"},
+    {"id": "wc07", "prompt": "woodcut", "label_class": "woodcut"},
+    {"id": "wc08", "prompt": "engraved copper plate look", "label_class": "woodcut"},
+    {"id": "wc09", "prompt": "woodcutt style please", "label_class": "woodcut", "note": "misspelling probe"},
+    {"id": "wc10", "prompt": "gouged and chiseled appearance", "label_class": "woodcut", "note": "synonym probe — no literal keyword"},
+
+    {"id": "tm01", "prompt": "lo-fi terminal phosphor", "label_class": "terminal"},
+    {"id": "tm02", "prompt": "green phosphor CRT monitor", "label_class": "terminal"},
+    {"id": "tm03", "prompt": "retro terminal look", "label_class": "terminal"},
+    {"id": "tm04", "prompt": "old CRT with bloom", "label_class": "terminal", "note": "no literal keyword — bloom is CRT-adjacent"},
+    {"id": "tm05", "prompt": "terminal", "label_class": "terminal"},
+    {"id": "tm06", "prompt": "make it feel like a 1982 computer screen", "label_class": "terminal", "note": "paraphrase probe"},
+    {"id": "tm07", "prompt": "phosphor green on black", "label_class": "terminal"},
+    {"id": "tm08", "prompt": "lo-fi", "label_class": "terminal"},
+    {"id": "tm09", "prompt": "scanlines and screen glow", "label_class": "terminal", "note": "synonym probe"},
+    {"id": "tm10", "prompt": "vintage amber monitor", "label_class": "terminal", "note": "paraphrase probe"},
+
+    {"id": "sf01", "prompt": "soft ambient fog", "label_class": "soft"},
+    {"id": "sf02", "prompt": "gentle and misty", "label_class": "soft"},
+    {"id": "sf03", "prompt": "foggy morning light", "label_class": "soft"},
+    {"id": "sf04", "prompt": "soft", "label_class": "soft"},
+    {"id": "sf05", "prompt": "ambient glow, low contrast", "label_class": "soft"},
+    {"id": "sf06", "prompt": "dreamy haze", "label_class": "soft", "note": "synonym probe"},
+    {"id": "sf07", "prompt": "quiet and diffuse", "label_class": "soft", "note": "synonym probe"},
+    {"id": "sf08", "prompt": "sofft focus", "label_class": "soft", "note": "misspelling probe"},
+    {"id": "sf09", "prompt": "mist rolling in", "label_class": "soft"},
+    {"id": "sf10", "prompt": "cotton-wool atmosphere", "label_class": "soft", "note": "metaphor probe"},
+
+    {"id": "hr01", "prompt": "harsh noir hard light", "label_class": "harsh"},
+    {"id": "hr02", "prompt": "brutal high contrast", "label_class": "harsh", "note": "no literal keyword"},
+    {"id": "hr03", "prompt": "hard shadows, crushed blacks", "label_class": "harsh", "note": "synonym probe"},
+    {"id": "hr04", "prompt": "noir", "label_class": "harsh"},
+    {"id": "hr05", "prompt": "harsh", "label_class": "harsh"},
+    {"id": "hr06", "prompt": "severe and stark", "label_class": "harsh", "note": "synonym probe"},
+    {"id": "hr07", "prompt": "unforgiving exposure", "label_class": "harsh", "note": "metaphor probe"},
+    {"id": "hr08", "prompt": "hard", "label_class": "harsh"},
+    {"id": "hr09", "prompt": "film noir detective office", "label_class": "harsh"},
+    {"id": "hr10", "prompt": "bleached daylight, deep shadow", "label_class": "harsh", "note": "metaphor probe"},
+
+    {"id": "df01", "prompt": "more contrast", "label_class": "default", "note": "dial-name prompt, no style class"},
+    {"id": "df02", "prompt": "brighter", "label_class": "default"},
+    {"id": "df03", "prompt": "hello", "label_class": "default", "note": "out-of-scope probe"},
+    {"id": "df04", "prompt": "run the pipeline", "label_class": "default"},
+    {"id": "df05", "prompt": "", "label_class": "default", "note": "empty probe"},
+
+    {"id": "adv01", "prompt": "soft woodcut", "label_class": "soft", "note": "ADVERSARIAL: soft intent, woodcut keyword first — first-match rule will misfire"},
+    {"id": "adv02", "prompt": "harsh fog", "label_class": "harsh", "note": "ADVERSARIAL: harsh intent, soft-class keyword present"},
+    {"id": "adv03", "prompt": "a soft terminal glow", "label_class": "soft", "note": "ADVERSARIAL: soft intent, terminal keyword present"},
+    {"id": "adv04", "prompt": "not harsh, keep it gentle", "label_class": "soft", "note": "ADVERSARIAL: negation — 'not harsh' must not route to harsh"},
+    {"id": "adv05", "prompt": "woodcut but soft and foggy", "label_class": "soft", "note": "ADVERSARIAL: explicit 'but' pivot — trailing class should win"}
+  ]
+}

@@ -23,6 +23,9 @@ const DEFAULT_DIALS = {
   edgePaint: 0.3,
 };
 
+// EVAL SET: edge/eval_prompts.json (50 prompts, pre-registered R2).
+// Mirror in edge/score_eval.py RULES — update both.
+// Measured 2026-10-01: overall top-1 = 0.560 (tools/edge_eval_receipt.json).
 // Keyword table — Round 3 replaces with a bounded mapping model.
 // Each entry: [trigger words, dial delta].
 const STYLE_RULES: [string[], Partial<typeof DEFAULT_DIALS>][] = [
