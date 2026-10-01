@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperInstance // Ⅵ WebGPU — Live Stream Hardware Matrix</title>
+<style>
+:root{
+  --bg:#060608; --panel:#0e0e12; --accent:#00ff66;
+  --muted:#4e4e5a; --text:#e2e2e9;
+  --mono:'Consolas','Fira Code','Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);overflow:hidden;display:flex;height:100vh}
+#viewport{flex:1;display:flex;justify-content:center;align-items:center;
+  background:radial-gradient(circle at center,#0d0d11 0%,#030305 100%);padding:20px}
+#grid{white-space:pre;font-size:9px;line-height:9px;letter-spacing:1px;
+  color:var(--accent);text-shadow:0 0 4px rgba(0,255,102,.4);user-select:none}
+#panel{width:380px;background:var(--panel);border-left:1px solid #16161f;
+  display:flex;flex-direction:column;padding:25px;box-shadow:-10px 0 30px rgba(0,0,0,.6)}
+h1{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:5px}
+.sub{font-size:10px;color:var(--muted);margin-bottom:20px;text-transform:uppercase;letter-spacing:1px}
+#drop{width:100%;height:60px;border:1px dashed #22222d;background:#121217;border-radius:4px;
+  display:flex;justify-content:center;align-items:center;font-size:11px;color:var(--muted);
+  cursor:pointer;text-transform:uppercase;margin-bottom:20px}
+#drop.hover{border-color:var(--accent);color:var(--accent)}
+#tel{flex:1;background:#040406;border:1px solid #121217;border-radius:4px;padding:12px;
+  font-size:10px;color:#686876;overflow-y:auto}
+.trow{margin-bottom:6px;line-height:13px}
+.trow .g{color:var(--accent)}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="grid">STANDBY // DEPLOY MEDIA TRAJECTORY</div></div>
+
+<div id="panel">
+  <h1>Ⅵ WebGPU Ingestion</h1>
+  <div class="sub">Bitwise Stream Pipeline — Hardware Shape-Match</div>
+  <div id="drop">Drop Local MP4 Video Stream</div>
+  <input type="file" id="file-in" accept="video/*" style="display:none">
+  <div class="sub" style="margin-bottom:5px">Active Ledger Telemetry</div>
+  <div id="tel">
+    <div class="trow">[WEBGPU] Initializing hardware registry mappings...</div>
+  </div>
+</div>
+
+<video id="src-video" loop playsinline crossorigin="anonymous" style="display:none"></video>
+<canvas id="buf" style="display:none"></canvas>
+
+<script>
+// =====================================================================
+// WGSL COMPUTE SHADER — kept in sync with shaders/glyph_election.wgsl
+// Same election contract as the CPU shape-match engine: 70 Hamming
+// comparisons per cell, 4x6 24-bit signatures, min distance wins.
+// =====================================================================
+const WGSL_SOURCE = `
+struct SystemUniforms {
+    grid_cols: u32,
+    grid_rows: u32,
+    font_glyph_count: u32,
+    padding: u32,
+};
+@group(0) @binding(0) var<uniform> uniforms : SystemUniforms;
+@group(0) @binding(1) var<storage, read> video_input_buffer : array<u32>;
+@group(0) @binding(2) var<storage, read> font_atlas_buffer : array<u32>;
+@group(0) @binding(3) var<storage, read_write> target_output_tokens : array<u32>;
+@group(0) @binding(4) var<storage, read_write> spatial_drift_metrics : array<f32>;
+
+@compute @workgroup_size(16, 16, 1)
+fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+    let col = global_id.x;
+    let row = global_id.y;
+    if (col >= uniforms.grid_cols || row >= uniforms.grid_rows) { return; }
+    let cell_index = row * uniforms.grid_cols + col;
+    let video_signature : u32 = video_input_buffer[cell_index];
+    var minimum_hamming_distance : u32 = 9999u;
+    var elected_glyph_index : u32 = 0u;
+    for (var g : u32 = 0u; g < uniforms.font_glyph_count; g = g + 1u) {
+        let glyph_signature : u32 = font_atlas_buffer[g];
+        let distance : u32 = countOneBits(video_signature ^ glyph_signature);
+        if (distance < minimum_hamming_distance) {
+            minimum_hamming_distance = distance;
+            elected_glyph_index = g;
+        }
+    }
+    target_output_tokens[cell_index] = elected_glyph_index;
+}
+`;
+
+// Grid parameters: 120x60 cells of 4x6 subpixels each.
+const COLS = 120, ROWS = 60, GLYPH_COUNT = 70;
+const NUM_CELLS = COLS * ROWS;
+const GLYPH_RAMP = " .:-=+*#%@█░▒▓╱╲╳─│┌┐└┘┼▤▥▦▧▨▩◆◇○●◜◝◞◟";
+
+let device, computePipeline, bindGroup;
+let gpuVideoBuffer, gpuOutputBuffer, stagingBuffer;
+const hostVideo = new Uint32Array(NUM_CELLS);
+
+const video = document.getElementById("src-video");
+const canvas = document.getElementById("buf");
+const ctx = canvas.getContext("2d");
+const grid = document.getElementById("grid");
+const tel = document.getElementById("tel");
+const drop = document.getElementById("drop");
+const fileIn = document.getElementById("file-in");
+canvas.width = COLS * 4;   // 4 subpixel columns per cell
+canvas.height = ROWS * 6;  // 6 subpixel rows per cell
+
+async function setupWebGPU() {
+  if (!navigator.gpu) { log("ERROR", "WebGPU context missing from current runtime profile."); return; }
+  const adapter = await navigator.gpu.requestAdapter();
+  device = await adapter.requestDevice();
+  const module = device.createShaderModule({ code: WGSL_SOURCE });
+
+  const uniformBuffer = device.createBuffer({
+    size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, mappedAtCreation: true
+  });
+  new Uint32Array(uniformBuffer.getMappedRange()).set([COLS, ROWS, GLYPH_COUNT, 0]);
+  uniformBuffer.unmap();
+
+  gpuVideoBuffer  = device.createBuffer({ size: NUM_CELLS * 4, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+  gpuOutputBuffer = device.createBuffer({ size: NUM_CELLS * 4, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC });
+  stagingBuffer   = device.createBuffer({ size: NUM_CELLS * 4, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
+  const gpuDrift  = device.createBuffer({ size: NUM_CELLS * 4, usage: GPUBufferUsage.STORAGE });
+
+  // Placeholder atlas — Round 2 swaps in real font_atlas_packager output.
+  const atlas = new Uint32Array(GLYPH_COUNT);
+  for (let i = 0; i < GLYPH_COUNT; i++) atlas[i] = (0x75F652 ^ (i * 997)) & 0xFFFFFF;
+  const gpuAtlas = device.createBuffer({ size: GLYPH_COUNT * 4, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+  device.queue.writeBuffer(gpuAtlas, 0, atlas);
+
+  computePipeline = device.createComputePipeline({
+    layout: "auto", compute: { module, entryPoint: "main" }
+  });
+  bindGroup = device.createBindGroup({
+    layout: computePipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: uniformBuffer } },
+      { binding: 1, resource: { buffer: gpuVideoBuffer } },
+      { binding: 2, resource: { buffer: gpuAtlas } },
+      { binding: 3, resource: { buffer: gpuOutputBuffer } },
+      { binding: 4, resource: { buffer: gpuDrift } }
+    ]
+  });
+  log("WEBGPU", "Hardware registers mapped. 120x60 grid, 70-glyph atlas, 60 FPS target.");
+  setupFileHandlers();
+}
+
+async function runLoop() {
+  if (video.paused || video.ended) return;
+
+  ctx.drawImage(video, 0, 0, COLS * 4, ROWS * 6);
+  const px = ctx.getImageData(0, 0, COLS * 4, ROWS * 6).data;
+
+  // Bit-pack every 4x6 sub-tile into one u32 (row-major, bit = subY*4+subX).
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      let reg = 0, bit = 0;
+      for (let sy = 0; sy < 6; sy++) {
+        for (let sx = 0; sx < 4; sx++) {
+          const i = ((y * 6 + sy) * (COLS * 4) + (x * 4 + sx)) * 4;
+          const luma = 0.299 * px[i] + 0.587 * px[i+1] + 0.114 * px[i+2];
+          if (luma > 128) reg |= (1 << bit);
+          bit++;
+        }
+      }
+      hostVideo[y * COLS + x] = reg >>> 0;
+    }
+  }
+
+  device.queue.writeBuffer(gpuVideoBuffer, 0, hostVideo);
+  const enc = device.createCommandEncoder();
+  const pass = enc.beginComputePass();
+  pass.setPipeline(computePipeline);
+  pass.setBindGroup(0, bindGroup);
+  pass.dispatchWorkgroups(Math.ceil(COLS / 16), Math.ceil(ROWS / 16), 1);
+  pass.end();
+  enc.copyBufferToBuffer(gpuOutputBuffer, 0, stagingBuffer, 0, NUM_CELLS * 4);
+  device.queue.submit([enc.finish()]);
+
+  await stagingBuffer.mapAsync(GPUMapMode.READ, 0, NUM_CELLS * 4);
+  const tokens = new Uint32Array(stagingBuffer.getMappedRange().slice(0));
+  stagingBuffer.unmap();
+
+  let out = "";
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      out += GLYPH_RAMP[tokens[y * COLS + x] % GLYPH_RAMP.length];
+    }
+    out += "\n";
+  }
+  grid.textContent = out;
+  requestAnimationFrame(runLoop);
+}
+
+function setupFileHandlers() {
+  drop.onclick = () => fileIn.click();
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("hover"); };
+  drop.ondragleave = () => drop.classList.remove("hover");
+  drop.ondrop = e => {
+    e.preventDefault(); drop.classList.remove("hover");
+    if (e.dataTransfer.files.length > 0) activate(e.dataTransfer.files[0]);
+  };
+  fileIn.onchange = e => { if (e.target.files.length > 0) activate(e.target.files[0]); };
+}
+
+function activate(file) {
+  log("GATE", `Ingesting stream tracking block: <span class="g">${file.name}</span>`);
+  video.src = URL.createObjectURL(file);
+  video.oncanplay = () => {
+    video.play();
+    log("RUN", "WebGPU hardware stream processing pipeline active.");
+    requestAnimationFrame(runLoop);
+  };
+}
+
+function log(layer, msg) {
+  const row = document.createElement("div");
+  row.className = "trow";
+  row.innerHTML = `[${layer}] ${msg}`;
+  tel.appendChild(row);
+  tel.scrollTop = tel.scrollHeight;
+}
+
+window.addEventListener("DOMContentLoaded", setupWebGPU);
+</script>
+</body>
+</html>

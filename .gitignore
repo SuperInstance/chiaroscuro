@@ -1,2 +1,7 @@
-node_modules/
+dist_twin/
 __pycache__/
+*.pyc
+.DS_Store
+node_modules/
+target/
+receipts/
