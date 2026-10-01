@@ -57,6 +57,13 @@ rule; camera-frame validation still R8-deferred). receipts/round-2.md.
    default, 5 adversarial first-match, 1 misspelling. Replacement design
    pre-registered in receipts/lane-c-edge.md (synonym graph + intent-position
    rule, target ≥0.85 on the pinned set).
+   REPLACEMENT BUILT + MEASURED (2026-10-01, branch `edge-nl-graph`, PR):
+   weighted synonym graph (`edge/synonym_graph.json`) + canonical router
+   (`edge/nl_route.js`) — rules committed BEFORE the run (R1). Pinned-set
+   top-1 = **1.000** (50/50, zero misroutes) vs 0.560 baseline, target ≥0.85
+   met; all 5 adversarial + 1 misspelling cases now correct. Receipt:
+   `tools/edge_graph_receipt.json`. Remaining: TS port into `edge/worker.ts`
+   + automated parity runner.
 2. Jev-gated frame diffing (JS port of `test_canvas_gardener_loop.py`) —
    skip static cells between GPU dispatches. Measure FPS delta on 120×60.
    CPU reference done: 55× static / 7.4× talking-head / 1.85× full-motion
