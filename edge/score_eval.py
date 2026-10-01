@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """
-score_eval.py — score edge/worker.ts STYLE_RULES against the pre-registered
-eval set (edge/eval_prompts.json, R2).
-
-MIRROR OF edge/worker.ts STYLE_RULES — update both.
-Rules copied verbatim from edge/worker.ts (first keyword match wins):
+score_eval.py — score the ORIGINAL keyword table (edge/worker.ts STYLE_RULES
+as of Round 3) against the pre-registered eval set (edge/eval_prompts.json, R2).
+HISTORICAL BASELINE INSTRUMENT: measured 0.560 (tools/edge_eval_receipt.json).
+The worker no longer carries this table — it routes through the synonym-graph
+router (edge/nl_route_core.mjs, parity-pinned by tools/nl_parity.mjs, measured
+50/50 via edge/score_graph.py -> tools/edge_graph_receipt.json). This file stays
+as the frozen baseline so the graph router's lift remains re-derivable.
+Rules copied verbatim from the Round-3 keyword worker (first keyword match wins):
   woodcut/carve/engraving -> {contrast:1.8, blackPoint:0.40, trailDecay:0.4, edgePaint:0.9}
   terminal/lo-fi/phosphor/retro -> {contrast:1.4, blackPoint:0.25, trailDecay:0.8, edgePaint:0.1}
   soft/ambient/fog -> {contrast:0.9, blackPoint:0.05, trailDecay:0.9, edgePaint:0.0}
