@@ -1,0 +1,17 @@
+{
+  "receipt": "chiaroscuro edge NL worker.ts mirror parity",
+  "date": "2026-10-01",
+  "canonical": "edge/nl_route.js",
+  "mirror": "edge/worker.ts",
+  "eval_set": "edge/eval_prompts.json",
+  "n_total": 50,
+  "n_identical": 50,
+  "parity": "FULL",
+  "sha256": {
+    "edge/worker.ts": "1933275992096271ba2e41da8eb0a53ba81a94baceb6663e026ab13b9ea12a40",
+    "edge/nl_route.js": "02319f18c641bf5209a0db8e9a19ac25e022ef8be68660da581a0574e17bab40",
+    "edge/synonym_graph.json": "b57f29b0b2c4c2a760325a7ee05f6b3cc27a0a7217a19ad269f6d7de98cff393",
+    "edge/eval_prompts.json": "32a35de206cf9d5cfd3639b85b6906bab580c3807e8ae97b1a7e3587bdc45cfe",
+    "tools/nl_parity.js": "3163a03516c0f569f579d11e272ec798b799e680312d955b7aef507abbb7998e"
+  }
+}
