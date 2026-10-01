@@ -21,7 +21,9 @@ POP = np.array([bin(i).count("1") for i in range(256)], dtype=np.uint8)
 
 def load_atlas():
     src = open("/root/.openclaw/workspace/repos/chiaroscuro/js/font_atlas.js").read()
-    data = re.search(r"FONT_ATLAS_DATA\s*=\s*new Uint32Array\(\[([^\]]+)\]", src).group(1)
+    i = src.find("FONT_ATLAS_DATA")
+    import re as _re
+    data = _re.match(r"\s*FONT_ATLAS_DATA\s*=\s*new Uint32Array\(\[([^\]]+)\]\)", src[i:]).group(1)
     return np.array([int(x.strip(), 0) for x in data.split(",") if x.strip()], dtype=np.uint32)
 
 

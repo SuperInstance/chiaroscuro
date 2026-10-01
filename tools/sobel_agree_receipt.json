@@ -8,24 +8,20 @@
   },
   "agreement": {
     "diagonal": {
-      "mean": 0.0368,
-      "min": 0.0135
+      "mean": 0.8063,
+      "min": 0.7629
     },
     "disk": {
-      "mean": 0.0032,
-      "min": 0.0017
+      "mean": 0.9599,
+      "min": 0.9503
     },
     "noise": {
-      "mean": 0.0947,
-      "min": 0.0918
+      "mean": 0.1357,
+      "min": 0.1313
     }
   },
-  "bin_subset_coverage": {
-    "diagonal": 1.0,
-    "disk": 1.0,
-    "noise": 1.0
-  },
-  "verdict_rule": "integrate iff agreement < 0.95 (disagreement = new signal)",
-  "overall_agreement": 0.0449,
+  "bin_nonempty_fraction": 0.9375,
+  "verdict_rule": "integrate iff overall agreement < 0.95 (disagreement = new signal)",
+  "overall_agreement": 0.634,
   "verdict": "INTEGRATE"
 }

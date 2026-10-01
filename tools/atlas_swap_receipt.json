@@ -1,0 +1,36 @@
+{
+ "pre_swap_file_sha256": "9194b6187abbf36622b6bb6edeac0dca7dab9bba3883f6b0140971e340f4fdd0",
+ "pre_swap_metrics": {
+  "unique": 64,
+  "min_hamming": 0,
+  "ink_ramp_r2": 0.4789,
+  "m5": {
+   "diagonal": 7.4233,
+   "disk": 7.079,
+   "noise": 6.6417
+  },
+  "sobel_agreement_overall": 0.2795,
+  "source": "font_atlas_packager 73045ae real LiberationMono ray cast"
+ },
+ "post_swap_file_sha256": "d08d0ca56d7e1c4694e2a0c5e485cbf15714fee0e446a5bffd5909c73adcf516",
+ "post_swap_metrics": {
+  "unique": 70,
+  "min_hamming": 2,
+  "ink_ramp_r2": 0.695,
+  "m5": {
+   "diagonal": 4.6337,
+   "disk": 3.2643,
+   "noise": 6.4285
+  },
+  "sobel_agreement": {
+   "diagonal": 0.8063,
+   "disk": 0.9599,
+   "noise": 0.1357,
+   "overall": 0.634,
+   "verdict": "INTEGRATE"
+  },
+  "bin_nonempty_fraction": 0.9375,
+  "source": "atlas-forge v0 optimized (eval_receipt chosen_for_integration)"
+ },
+ "finding": "Optimized codebook was trained WITH the Sobel bin-assignment loss, so orientation structure is baked in: Sobel gating now agrees with plain election on structured scenes (disk 0.96, above the 0.95 per-class redundancy line) but noise disagreement deepened (0.30->0.14). Overall 0.634 < 0.95 -> INTEGRATE stands per pre-registered rule, but the gate's marginal value on structured scenes shrank exactly because the atlas absorbed the descriptor."
+}
