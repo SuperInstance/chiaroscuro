@@ -1,0 +1,21 @@
+{
+  "seed": 20260930,
+  "frames": 60,
+  "cells": 7200,
+  "k": 3,
+  "top_singular_values": [
+    479.14,
+    460.72,
+    451.49,
+    13.78,
+    13.76,
+    13.69
+  ],
+  "cumulative_explained_var_k1": 0.3505,
+  "cumulative_explained_var_k2": 0.6746,
+  "cumulative_explained_var_k3": 0.9859,
+  "k3_meets_90pct": true,
+  "raw_window_bytes": 230400,
+  "kT_token_bytes": 180,
+  "compression_ratio": 1280.0
+}

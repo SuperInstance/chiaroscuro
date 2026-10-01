@@ -21,6 +21,11 @@ pre-registered model classes before transfer claims; receipts over claims).
 
 ## Round 2 — Honest Engine (make the sim real)
 
+Status: atlas hookup ✓ (gen_atlas.py → js/font_atlas.js, 73 glyphs/292 B),
+trail buffer ✓ (webgpu.html Float32Array persistence), ActiveLedger ✓
+(writer+verifier, CHAIN OK), Sobel ramp SKIPPED→recorded-frames follow-up.
+See receipts/round-2.md.
+
 Priority order:
 1. **Rust real outline intersection** — replace `simulate_outline_intersection`
    with true ttf-parser outline traversal + even-odd ray cast. Deliverable:
@@ -35,6 +40,9 @@ Priority order:
    Measure agreement vs plain luma ramp on the same frame.
 
 Gate: each item ships with a test or a run receipt in `receipts/`.
+Status: 1→atlas hookup done (simulated-coverage mirror, real ttf cast pending
+cargo host); 2→trail buffer done; 3→ActiveLedger done (CHAIN OK); 4→SKIPPED
+(R8, needs recorded frames). receipts/round-2.md.
 
 ## Round 3 — Edge Intelligence
 
@@ -43,6 +51,8 @@ Gate: each item ships with a test or a run receipt in `receipts/`.
    top-1 dial-set accuracy against hand labels.
 2. Jev-gated frame diffing (JS port of `test_canvas_gardener_loop.py`) —
    skip static cells between GPU dispatches. Measure FPS delta on 120×60.
+   CPU reference done: 55× static / 7.4× talking-head / 1.85× full-motion
+   (tools/jev_gate.py + tools/jev_gate_receipt.json). JS port next.
 3. Voice/NL loop — ONLY after a written spec lands in docs/ (canon describes
    it, no code exists; do not build from prose).
 
@@ -50,6 +60,9 @@ Gate: each item ships with a test or a run receipt in `receipts/`.
 
 1. SVD eigenshape extractor (NumPy or Rust ndarray) over recorded cell
    trajectories. Verify k=3 captures ≥90% variance on a 60-frame window.
+   DONE on synthetic: k=3 → 98.59% variance (gate ≥90% PASS), clean rank-3
+   separation, 1280× theoretical compression (tools/svd_eigenshape.py +
+   tools/svd_eigenshape_receipt.json). Real-camera follow-up pending.
 2. JEPA-style codebook quantization of trajectories → token stream.
    Deliverable: `tools/token_stream.py` emitting k×T byte arrays.
 3. Receipt: 6.2MB frame → measured byte count vs the k×T theoretical bound.

@@ -1,0 +1,62 @@
+{
+  "seed": 20260930,
+  "tau_motion": 0.35,
+  "tau_static": 0.05,
+  "frames": 60,
+  "results": {
+    "80x45 static-scene": {
+      "cells": 3600,
+      "abstain_fraction": 0.9819,
+      "dispatch_fraction": 0.0181,
+      "expected_speedup": 55.26
+    },
+    "80x45 talking-head": {
+      "cells": 3600,
+      "abstain_fraction": 0.8652,
+      "dispatch_fraction": 0.1348,
+      "expected_speedup": 7.42
+    },
+    "80x45 full-motion": {
+      "cells": 3600,
+      "abstain_fraction": 0.4583,
+      "dispatch_fraction": 0.5417,
+      "expected_speedup": 1.85
+    },
+    "100x50 static-scene": {
+      "cells": 5000,
+      "abstain_fraction": 0.9819,
+      "dispatch_fraction": 0.0181,
+      "expected_speedup": 55.19
+    },
+    "100x50 talking-head": {
+      "cells": 5000,
+      "abstain_fraction": 0.8645,
+      "dispatch_fraction": 0.1355,
+      "expected_speedup": 7.38
+    },
+    "100x50 full-motion": {
+      "cells": 5000,
+      "abstain_fraction": 0.4583,
+      "dispatch_fraction": 0.5417,
+      "expected_speedup": 1.85
+    },
+    "120x60 static-scene": {
+      "cells": 7200,
+      "abstain_fraction": 0.982,
+      "dispatch_fraction": 0.018,
+      "expected_speedup": 55.58
+    },
+    "120x60 talking-head": {
+      "cells": 7200,
+      "abstain_fraction": 0.8647,
+      "dispatch_fraction": 0.1353,
+      "expected_speedup": 7.39
+    },
+    "120x60 full-motion": {
+      "cells": 7200,
+      "abstain_fraction": 0.4585,
+      "dispatch_fraction": 0.5415,
+      "expected_speedup": 1.85
+    }
+  }
+}
