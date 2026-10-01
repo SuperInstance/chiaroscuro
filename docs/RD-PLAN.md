@@ -40,19 +40,29 @@ Priority order:
    Measure agreement vs plain luma ramp on the same frame.
 
 Gate: each item ships with a test or a run receipt in `receipts/`.
-Status: 1→atlas hookup done (simulated-coverage mirror, real ttf cast pending
-cargo host); 2→trail buffer done; 3→ActiveLedger done (CHAIN OK); 4→SKIPPED
-(R8, needs recorded frames). receipts/round-2.md.
+Status: 1→DONE 2026-10-01 (font_atlas_packager 73045ae: real ttf-parser
+outline path, 'H' stroke test PASS, LiberationMono atlas 66/73 unique,
+max Hamming 24/24; swap-in to JS atlas is a separate pinned receipt);
+2→trail buffer done; 3→ActiveLedger done (CHAIN OK); 4→DONE offline
+2026-10-01 (sobel agreement 0.2795 overall → INTEGRATE per pre-registered
+rule; camera-frame validation still R8-deferred). receipts/round-2.md.
 
 ## Round 3 — Edge Intelligence
 
 1. Worker: replace keyword table with a bounded mapping (tiny embedded model
    or weighted synonym graph). Pre-register eval set of 50 prompts; measure
    top-1 dial-set accuracy against hand labels.
+   DONE (measured, not replaced): eval set sealed (sha256 32a35de2…), top-1
+   0.560 — soft weakest at 0.29; 22 failures = 14 synonym/paraphrase →
+   default, 5 adversarial first-match, 1 misspelling. Replacement design
+   pre-registered in receipts/lane-c-edge.md (synonym graph + intent-position
+   rule, target ≥0.85 on the pinned set).
 2. Jev-gated frame diffing (JS port of `test_canvas_gardener_loop.py`) —
    skip static cells between GPU dispatches. Measure FPS delta on 120×60.
    CPU reference done: 55× static / 7.4× talking-head / 1.85× full-motion
-   (tools/jev_gate.py + tools/jev_gate_receipt.json). JS port next.
+   (tools/jev_gate.py + tools/jev_gate_receipt.json). JS port DONE 2026-10-01:
+   js/jev_gate.js (node-verified static/motion/coherence cases) + WGSL
+   cell_dirty binding(5) + webgpu.html perf meter; real-hardware FPS R8-SKIPPED.
 3. Voice/NL loop — ONLY after a written spec lands in docs/ (canon describes
    it, no code exists; do not build from prose).
 
@@ -65,7 +75,14 @@ cargo host); 2→trail buffer done; 3→ActiveLedger done (CHAIN OK); 4→SKIPPE
    tools/svd_eigenshape_receipt.json). Real-camera follow-up pending.
 2. JEPA-style codebook quantization of trajectories → token stream.
    Deliverable: `tools/token_stream.py` emitting k×T byte arrays.
+   DONE 2026-10-01: K=32 k-means on SVD k=3 projections; train MSE 0.001007,
+   holdout 0.001024 (overfit gap 0.9833), null-lift 6.08×. Per-window bytes:
+   tokens 12.8× vs SVD floor 40× — SVD floor wins on synthetic; tokens must
+   beat coefficient regression downstream to earn their place (next receipt).
 3. Receipt: 6.2MB frame → measured byte count vs the k×T theoretical bound.
+   DONE (tools/token_stream_receipt.json): raw f64 window 3,456,000 B;
+   bit-packed token stream 270,000 B; SVD f32 floor 86,400 B. The earlier
+   1280× planning figure superseded by this honest accounting.
 
 ## Standing Rules (carried from cog-lab, amended for this repo)
 
