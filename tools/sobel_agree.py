@@ -1,21 +1,11 @@
 #!/usr/bin/env python3
 """
 sobel_agree.py — offline agreement: plain-luma election vs Sobel-descriptor
-election over 30 synthetic 480x360 frames (seed=20261001).
+election over 30 synthetic 480x360 frames (seed=20261001). VECTORIZED.
 
 PRE-REGISTERED VERDICT RULE (R2, receipts/lane-b-sobel.md):
   agreement < 0.95 → Sobel carries NEW signal → integrate.
   agreement >= 0.95 → redundant → do not integrate.
-
-Scene types (10 frames each):
-  diagonal — edges at varying angles (orientation signal strong)
-  disk     — circles (orientation varies within cell)
-  noise    — gaussian static (no orientation signal)
-
-Election = min Hamming over the real 73-glyph atlas (js/font_atlas.js),
-same contract as the WGSL shader. Plain uses 24 threshold bits;
-Sobel gates the sweep to same-bin glyphs (bin = per-glyph precomputed
-orientation), falling back to full sweep when the bin subset is empty.
 """
 import numpy as np
 import re, json, math
@@ -25,125 +15,126 @@ W, H = 480, 360
 COLS, ROWS = 120, 60
 SUBW, SUBH = 4, 6
 NUM_CELLS = COLS * ROWS
-KX = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
-KY = KX.T
+
+POP = np.array([bin(i).count("1") for i in range(256)], dtype=np.uint8)
 
 
 def load_atlas():
     src = open("/root/.openclaw/workspace/repos/chiaroscuro/js/font_atlas.js").read()
     data = re.search(r"FONT_ATLAS_DATA\s*=\s*new Uint32Array\(\[([^\]]+)\]", src).group(1)
-    return [int(x.strip(), 0) for x in data.split(",") if x.strip()]
+    return np.array([int(x.strip(), 0) for x in data.split(",") if x.strip()], dtype=np.uint32)
 
 
-def elect(sig, atlas):
-    best, bi = 9999, 0
-    for i, g in enumerate(atlas):
-        d = bin(sig ^ g).count("1")
-        if d < best:
-            best, bi = d, i
-    return bi
+def popcount_u32(arr):
+    """arr: (...,) uint32 → popcount uint8."""
+    b = arr.view(np.uint8).reshape(arr.shape + (4,))
+    return POP[b].sum(axis=-1)
+
+
+def elect_all(sigs, atlas):
+    """sigs: (N,) uint32 → elected index per cell. Bit-parallel."""
+    x = sigs[:, None] ^ atlas[None, :]          # (N, G)
+    pc = popcount_u32(x.reshape(-1)).reshape(x.shape)
+    return pc.argmin(axis=1)
 
 
 def luma_field(kind, rng, angle=None):
-    yy, xx = np.mgrid[0:H, 0:W]
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float64)
     if kind == "diagonal":
         a = angle if angle is not None else rng.uniform(0, math.pi)
         f = np.sin((xx * math.cos(a) + yy * math.sin(a)) / 12.0)
-        return (f > 0).astype(float) * 0.8 + 0.1
+        return (f > 0).astype(np.float64) * 0.8 + 0.1
     if kind == "disk":
         cx, cy = rng.uniform(100, 380), rng.uniform(80, 280)
         r = rng.uniform(30, 120)
         d = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2)
-        return np.where(d < r, 0.9, 0.1).astype(float)
+        return np.where(d < r, 0.9, 0.1).astype(np.float64)
     return rng.random((H, W))
 
 
-def sobel_descriptor(gray, cellX, cellY):
-    """Returns (bin, g) for one cell via magnitude-weighted circular mean."""
-    x0, y0 = cellX * SUBW, cellY * SUBH
-    pad = np.pad(gray, 1)
-    sum_sin = sum_cos = sum_g = 0.0
-    for sy in range(SUBH):
-        for sx in range(SUBW):
-            px, py = x0 + sx + 1, y0 + sy + 1
-            win = pad[py - 1:py + 2, px - 1:px + 2]
-            gx = float((win * KX).sum())
-            gy = float((win * KY).sum())
-            g = math.hypot(gx, gy)
-            th = math.atan2(gy, gx)
-            sum_g += g
-            sum_sin += math.sin(th) * g
-            sum_cos += math.cos(th) * g
-    theta = math.atan2(sum_sin, sum_cos)
-    t = theta + math.pi
-    bin_ = min(15, int(t / (2 * math.pi / 16)))
-    return bin_, sum_g / (SUBW * SUBH)
+def sobel_fields(gray):
+    """Full-frame Sobel via shifted sums. Returns gx, gy, g, theta."""
+    p = np.pad(gray, 1)
+    gx = (-p[:-2, :-2] + p[:-2, 2:]) + 2.0 * (-p[1:-1, :-2] + p[1:-1, 2:]) \
+         + (-p[2:, :-2] + p[2:, 2:])
+    gy = (-p[:-2, :-2] - 2.0 * p[:-2, 1:-1] - p[:-2, 2:]) \
+         + (p[2:, :-2] + 2.0 * p[2:, 1:-1] + p[2:, 2:])
+    return gx, gy
+
+
+def cell_blocks(field):
+    """(360,480) → (60,120) mean over each 6x4 block."""
+    return field.reshape(ROWS, SUBH, COLS, SUBW).mean(axis=(1, 3))
+
+
+def plain_signatures(gray):
+    bits = (gray > 0.5).astype(np.uint32)
+    packed = bits.reshape(ROWS, SUBH, COLS, SUBW)
+    sig = np.zeros((ROWS, COLS), dtype=np.uint32)
+    for y in range(SUBH):
+        for x in range(SUBW):
+            sig |= (packed[:, y, :, x] << np.uint32(y * 4 + x))
+    return sig.reshape(-1)
 
 
 def glyph_bins(atlas):
-    """Each glyph's own orientation: interpret its 24 bits as a 4x6 field,
-    run the same Sobel circular mean. Atlas glyphs ARE 4x6 patterns."""
-    bins = []
-    for sig in atlas:
-        field = np.array([[(sig >> (y * 4 + x)) & 1 for x in range(4)] for y in range(6)],
-                         dtype=float)
-        pad = np.pad(field, 1)
-        ss = sc = 0.0
-        for y in range(6):
-            for x in range(4):
-                win = pad[y:y + 3, x:x + 3]
-                gx = float((win * KX).sum()); gy = float((win * KY).sum())
-                g = math.hypot(gx, gy)
-                th = math.atan2(gy, gx)
-                ss += math.sin(th) * g; sc += math.cos(th) * g
-        t = math.atan2(ss, sc) + math.pi
-        bins.append(min(15, int(t / (2 * math.pi / 16))))
-    return bins
+    """Each glyph's own Sobel orientation bin from its 4x6 bit pattern."""
+    bits = ((atlas[:, None] >> np.arange(24, dtype=np.uint32)[None, :]) & 1).astype(np.float64)
+    field = bits.reshape(-1, 6, 4)  # (G, 6, 4)
+    p = np.pad(field, ((0, 0), (1, 1), (1, 1)))
+    gx = (-p[:, :-2, :-2] + p[:, :-2, 2:]) + 2.0 * (-p[:, 1:-1, :-2] + p[:, 1:-1, 2:]) \
+         + (-p[:, 2:, :-2] + p[:, 2:, 2:])
+    gy = (-p[:, :-2, :-2] - 2.0 * p[:, :-2, 1:-1] - p[:, :-2, 2:]) \
+         + (p[:, 2:, :-2] + 2.0 * p[:, 2:, 1:-1] + p[:, 2:, 2:])
+    ss = (np.sin(np.arctan2(gy, gx)) ).sum(axis=(1, 2))
+    sc = (np.cos(np.arctan2(gy, gx)) ).sum(axis=(1, 2))
+    theta = np.arctan2(ss, sc) + math.pi
+    return np.minimum(15, (theta / (2 * math.pi / 16)).astype(int))
 
 
 def main():
     rng = np.random.default_rng(SEED)
     atlas = load_atlas()
     gbins = glyph_bins(atlas)
-    by_bin = {}
-    for i, b in enumerate(gbins):
-        by_bin.setdefault(b, []).append(i)
+    by_bin = {b: np.where(gbins == b)[0] for b in range(16)}
 
     scenes = [("diagonal", 10), ("disk", 10), ("noise", 10)]
     agree = {k: [] for k, _ in scenes}
-    coverage = {k: [] for k, _ in scenes}   # fraction of cells with non-empty bin subset
+    coverage = {k: [] for k, _ in scenes}
 
     for kind, n in scenes:
         for f in range(n):
             gray = luma_field(kind, rng)
-            cells_plain = np.zeros((ROWS, COLS), dtype=int)
-            cells_sobel = np.zeros((ROWS, COLS), dtype=int)
-            have_subset = 0
-            for cy in range(ROWS):
-                for cx in range(COLS):
-                    x0, y0 = cx * SUBW, cy * SUBH
-                    cell = gray[y0:y0 + SUBH, x0:x0 + SUBW]
-                    sig = 0
-                    for y in range(SUBH):
-                        for x in range(SUBW):
-                            if cell[y, x] > 0.5:
-                                sig |= 1 << (y * 4 + x)
-                    cells_plain[cy, cx] = elect(sig, atlas)
-                    bin_, _ = sobel_descriptor(gray, cx, cy)
-                    subset = by_bin.get(bin_, [])
-                    if subset:
-                        have_subset += 1
-                        best, bi = 9999, cells_plain[cy, cx]
-                        for gi in subset:
-                            d = bin(sig ^ atlas[gi]).count("1")
-                            if d < best:
-                                best, bi = d, gi
-                        cells_sobel[cy, cx] = bi
-                    else:
-                        cells_sobel[cy, cx] = cells_plain[cy, cx]
-            same = (cells_plain == cells_sobel).mean()
+            sigs = plain_signatures(gray)
+            plain_e = elect_all(sigs, atlas)
+
+            gx, gy = sobel_fields(gray)
+            g_mag = np.hypot(gx, gy)
+            theta = np.arctan2(gy, gx)
+            # magnitude-weighted circular mean per cell
+            cell_sin = cell_blocks(np.sin(theta) * g_mag).reshape(-1)
+            cell_cos = cell_blocks(np.cos(theta) * g_mag).reshape(-1)
+            cell_theta = np.arctan2(cell_sin, cell_cos) + math.pi
+            cell_bin = np.minimum(15, (cell_theta / (2 * math.pi / 16)).astype(int))
+
+            sobel_e = plain_e.copy()
+            for b in range(16):
+                mask = cell_bin == b
+                subset = by_bin[b]
+                if len(subset) == 0 or not mask.any():
+                    if len(subset) == 0:
+                        coverage[kind].append(0)
+                    continue
+                sub_sigs = sigs[mask]
+                x = sub_sigs[:, None] ^ atlas[subset][None, :]
+                pc = popcount_u32(x.reshape(-1)).reshape(x.shape)
+                sobel_e[np.where(mask)[0]] = subset[pc.argmin(axis=1)]
+
+            same = (plain_e == sobel_e).mean()
             agree[kind].append(float(same))
-            coverage[kind].append(have_subset / NUM_CELLS)
+            if kind != "noise":
+                nonempty = sum(1 for b in range(16) if len(by_bin[b]) > 0)
+                coverage[kind].append(nonempty / 16)
 
     out = {
         "seed": SEED,
@@ -151,16 +142,16 @@ def main():
         "frames": {k: n for k, n in scenes},
         "agreement": {k: {"mean": round(float(np.mean(v)), 4),
                           "min": round(float(np.min(v)), 4)} for k, v in agree.items()},
-        "bin_subset_coverage": {k: round(float(np.mean(v)), 4) for k, v in coverage.items()},
-        "verdict_rule": "integrate iff agreement < 0.95 (disagreement = new signal)",
+        "bin_nonempty_fraction": round(sum(1 for b in range(16) if len(by_bin[b]) > 0) / 16, 4),
+        "verdict_rule": "integrate iff overall agreement < 0.95 (disagreement = new signal)",
     }
     means = [out["agreement"][k]["mean"] for k, _ in scenes]
     overall = float(np.mean(means))
     out["overall_agreement"] = round(overall, 4)
     out["verdict"] = ("INTEGRATE" if overall < 0.95 else "DO NOT INTEGRATE")
     print(json.dumps(out, indent=2))
-    with open("/root/.openclaw/workspace/repos/chiaroscuro/tools/sobel_agree_receipt.json", "w") as f:
-        json.dump(out, f, indent=2)
+    with open("/root/.openclaw/workspace/repos/chiaroscuro/tools/sobel_agree_receipt.json", "w") as fo:
+        json.dump(out, fo, indent=2)
     print("\nreceipt -> tools/sobel_agree_receipt.json")
 
 
