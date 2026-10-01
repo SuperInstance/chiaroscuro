@@ -45,3 +45,21 @@ degraded suite in the same process run — difference isolates CAST, not drift.
 
 15 min no-signal → stop, write negative receipt. CAST thrash guard: if CAST flips
 any clean-suite route, H2 fails and CAST ships disabled behind `cast:false` default.
+
+## Revision 1 (sealed AFTER first run, BEFORE any re-run — diagnosis-driven)
+
+First receipt (verdict FAIL, preserved in git history): v1 already scores 0.870 on
+the degraded suite; 12 of 13 residual failures have **zero matched terms**
+(distance-2 typos destroy fuzzy-1) — CAST as registered could not fire because it
+required ≥1 hit. The fly analog casts precisely when the plume is absent, not
+when it is merely weak.
+
+Revised trigger, sealed now: CAST fires whenever best === null (evidence absence),
+whether or not hits exist. Widening: every prompt word of length ≥
+fuzzy_min_term_len is matched against ALL single-word graph terms at edit
+distance ≤2 (hits present: bases = matched-term roots only, per original spec;
+no hits: bases = all prompt words). Neighbor weight = term weight × 0.5
+(pre-registered factor unchanged; only strong-band neighbors can reach
+route_threshold=1.0 — an honest, testable consequence). Single widening pass,
+tiebreak rule unchanged. All other bars (H1 ≥ +0.10, H2 clean 50/50 ≤5% clock,
+H3 pins) unchanged. H1-rev is tested against the SAME seeded degraded suite.
