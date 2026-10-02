@@ -20,6 +20,8 @@ struct SystemUniforms {
 @group(0) @binding(2) var<storage, read> font_atlas_buffer : array<u32>;
 @group(0) @binding(3) var<storage, read_write> target_output_tokens : array<u32>;
 @group(0) @binding(4) var<storage, read_write> spatial_drift_metrics : array<f32>;
+// Lane A: Jev-gate dirty flags — 0 = Abstain, keep previous token.
+@group(0) @binding(5) var<storage, read> cell_dirty : array<u32>;
 
 @compute @workgroup_size(16, 16, 1)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
@@ -32,6 +34,12 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
     }
 
     let cell_index = row * uniforms.grid_cols + col;
+
+    // Jev Abstain skip: prior token stays resident in target_output_tokens.
+    if (cell_dirty[cell_index] == 0u) {
+        return;
+    }
+
     let video_signature : u32 = video_input_buffer[cell_index];
 
     // Per-thread local accumulators — no global atomics (mobile rule 1).

@@ -1,0 +1,28 @@
+{
+  "seeds": {
+    "train": 20260930,
+    "holdout": 777,
+    "kmeans": 99,
+    "null": 1234
+  },
+  "K": 32,
+  "iters": 20,
+  "k_svd": 3,
+  "window": 60,
+  "mse": {
+    "train_real_mse": 0.001007,
+    "train_null_mse": 0.006199,
+    "holdout_real_mse": 0.001024,
+    "holdout_null_mse": 0.006226
+  },
+  "overfit_gap": 0.9833,
+  "null_lift": 6.08,
+  "bytes_per_window": {
+    "raw_f64": 3456000,
+    "token_stream_bitpacked": 270000,
+    "svd_f32_floor": 86400,
+    "compression_tokens": 12.8,
+    "compression_svd_floor": 40.0,
+    "note": "SVD floor wins on synthetic data because k=3 captures 98.6% variance; tokens earn their place only if discrete-symbol prediction beats regression on coefficients."
+  }
+}

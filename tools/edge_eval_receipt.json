@@ -1,0 +1,36 @@
+{
+  "eval_set_sha256": "32a35de206cf9d5cfd3639b85b6906bab580c3807e8ae97b1a7e3587bdc45cfe",
+  "overall_top1": 0.56,
+  "per_class": {
+    "woodcut": 0.7,
+    "terminal": 0.6,
+    "soft": 0.2857,
+    "harsh": 0.5455,
+    "default": 1.0
+  },
+  "n_failures": 22,
+  "failure_ids": [
+    "wc05",
+    "wc08",
+    "wc10",
+    "tm04",
+    "tm06",
+    "tm09",
+    "tm10",
+    "sf02",
+    "sf06",
+    "sf07",
+    "sf08",
+    "sf09",
+    "sf10",
+    "hr02",
+    "hr06",
+    "hr07",
+    "hr10",
+    "adv01",
+    "adv02",
+    "adv03",
+    "adv04",
+    "adv05"
+  ]
+}
