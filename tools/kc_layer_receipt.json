@@ -1,0 +1,39 @@
+{
+  "seed": 20261001,
+  "kc": 2048,
+  "wta": 102,
+  "eta": 0.2,
+  "proj_density": 0.1,
+  "dense_null": true,
+  "locality_pin_rows_max": 102,
+  "tests": {
+    "a_cv5_clean": {
+      "folds": [
+        0.1,
+        0.5,
+        0.3,
+        0.3,
+        0.1
+      ],
+      "mean_top1": 0.26,
+      "pass": false,
+      "dense_null_mean": 0.4
+    },
+    "b_zeroshot_degraded": {
+      "kc_top1": 0.3103,
+      "router_top1": 0.931,
+      "dense_null_top1": 0.6034,
+      "pass": false
+    },
+    "c_interference": {
+      "trio_before": 0.4118,
+      "trio_after": 0.0,
+      "drop_pts": 41.18,
+      "pass": false
+    }
+  },
+  "verdict": "FAIL",
+  "locality_rows_touched_max": 102,
+  "locality_pass": true,
+  "chance_null_top1": 0.2
+}
