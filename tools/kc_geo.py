@@ -30,7 +30,7 @@ from kc_layer import (KCModel, CLASSES, load_graph, NEG_MARKERS,
 
 SEED = 20261001
 D_GEO = 64
-RHO = float(np.tan(np.radians(30.0)))  # analytic 30-degree class-cone bound
+RHO = 0.5  # sin(30deg) — v4 correction: analytic worst case arcsin(rho)=30.000deg exactly
 GEO_CLASSES = ["woodcut", "terminal", "soft", "harsh"]  # default owns no prototype
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -285,20 +285,28 @@ def main():
     h4 = (shuf_mean <= 0.40) and (not approx)
     dec += s_dec
 
-    # sealed-v0 FAIL receipt hash for comparison
+    # sealed-v0 FAIL receipt + sealed v3 spec/v3 FAIL receipt hashes
     with open(os.path.join(HERE, "kc_layer_receipt.json"), "rb") as f:
         v0_hash = format(fnv1a_64(f.read().decode("utf-8")), "016x")
+    with open(os.path.join(HERE, "..", "docs", "pre-registration-geopn-kc.md"), "rb") as f:
+        v3_spec_hash = format(fnv1a_64(f.read().decode("utf-8")), "016x")
+    with open(os.path.join(HERE, "kc_geo_receipt.json"), "rb") as f:
+        v3_receipt_hash = format(fnv1a_64(f.read().decode("utf-8")), "016x")
 
     receipt = {
         "seed": SEED,
         "d_geo": D_GEO,
-        "rho_tan30": round(RHO, 6),
+        "rho": round(RHO, 6),
+        "analytic_bound_deg": 30.0,
+        "v3_rho_tan30_analytic_bound_deg": 35.264,
         "prototype_frame_hash": format(
             fnv1a_64(json.dumps(np.round(frame, 12).tolist())), "016x"),
-        "spec": "docs/pre-registration-geopn-kc.md (sealed R1)",
+        "spec": "docs/pre-registration-geopn-kc-v4.md (sealed R1, cc93a7d)",
         "geometry_pins": {
             "G1_orthonormal_max_offdiag": off_diag, "G1_pass": bool(g1),
-            "G2_max_term_deviation_deg": round(g2_val, 3), "G2_pass": bool(g2),
+            "G2_max_term_deviation_deg": round(g2_val, 3),
+            "G2_bar_deg": "<= 30.5 sampling margin over TRUE analytic bound 30.000 (v3's false claim: 30 at tan30; true v3 bound 35.264)",
+            "G2_pass": bool(g2),
             "G3_within_minus_between_cos": round(g3_val, 4), "G3_pass": bool(g3),
             "zero_hit_prompts": len(zero_hit_prompts),
             "zero_hit_behavior_identical_to_v0": bool(zh_identical),
@@ -322,12 +330,14 @@ def main():
         "locality_pass": bool(m.rows_touched_max <= 102),
         "decision_chain_fnv1a64": chain_hash(dec),
         "sealed_v0_fail_receipt_hash": v0_hash,
+        "sealed_v3_spec_hash": v3_spec_hash,
+        "sealed_v3_fail_receipt_hash": v3_receipt_hash,
         "verdict": None,
     }
     allpass = (g1 and g2 and g3 and zh_identical and h1 and h2 and h3 and h4
                and receipt["locality_pass"])
     receipt["verdict"] = "PASS" if allpass else "FAIL"
-    with open(os.path.join(HERE, "kc_geo_receipt.json"), "w") as f:
+    with open(os.path.join(HERE, "kc_geo_v4_receipt.json"), "w") as f:
         json.dump(receipt, f, indent=2)
     print(json.dumps(receipt, indent=2))
     return 0 if allpass else 1
