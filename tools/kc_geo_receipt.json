@@ -1,0 +1,67 @@
+{
+  "seed": 20261001,
+  "d_geo": 64,
+  "rho_tan30": 0.57735,
+  "prototype_frame_hash": "8f441e81c015776a",
+  "spec": "docs/pre-registration-geopn-kc.md (sealed R1)",
+  "geometry_pins": {
+    "G1_orthonormal_max_offdiag": 7.771561172376096e-16,
+    "G1_pass": true,
+    "G2_max_term_deviation_deg": 33.763,
+    "G2_pass": false,
+    "G3_within_minus_between_cos": 0.7998,
+    "G3_pass": true,
+    "zero_hit_prompts": 5,
+    "zero_hit_behavior_identical_to_v0": true
+  },
+  "tests": {
+    "H1_cv5_clean": {
+      "folds": [
+        0.9,
+        1.0,
+        0.9,
+        0.8,
+        0.8
+      ],
+      "mean_top1": 0.88,
+      "dense_null_mean": 0.26,
+      "pass": false
+    },
+    "H2_zeroshot_degraded": {
+      "kc_top1": 0.4483,
+      "router_top1": 0.931,
+      "dense_null_top1": 0.2414,
+      "pass": false
+    },
+    "H3_interference": {
+      "trio_before": 0.4118,
+      "trio_after": 0.0,
+      "drop_pts": 41.18,
+      "pass": false
+    },
+    "H4_geometry_shuffle": {
+      "folds": [
+        0.9,
+        0.7,
+        0.9,
+        0.8,
+        0.5
+      ],
+      "mean_top1": 0.76,
+      "dense_null_mean": 0.12,
+      "approx_equal_to_main": false,
+      "bar": "<= 0.40 and not ~= main",
+      "pass": false
+    }
+  },
+  "nulls": {
+    "chance_top1": 0.2,
+    "dense_linear_clean_mean": 0.26,
+    "dense_linear_degraded_top1": 0.2414
+  },
+  "locality_rows_touched_max": 102,
+  "locality_pass": true,
+  "decision_chain_fnv1a64": "81a0674dba58b705",
+  "sealed_v0_fail_receipt_hash": "2561e3867d98a71a",
+  "verdict": "FAIL"
+}
