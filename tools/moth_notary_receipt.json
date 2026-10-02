@@ -1,0 +1,66 @@
+{
+  "ledger": "flycx-tick-v1",
+  "cell_family": "FLYCX-TICK",
+  "chain_alg": "fnv1a-64 rolling",
+  "input_layer_hash": "59c937fb662c0e98",
+  "inputs": [
+    {
+      "file": "fly_cx_receipt.json",
+      "sha256": "824c7e32ae6486b78a12602ba26af1610ebb0ab7c64a0b21906c0622b3aa9039",
+      "bytes": 1891
+    },
+    {
+      "file": "cast_eval_receipt.json",
+      "sha256": "7747081aa53875ac0e071ddccd44a2f407180cc75f5bf3734695150d6b892ee6",
+      "bytes": 1287
+    },
+    {
+      "file": "cast_eval_v2_receipt.json",
+      "sha256": "f46917915e7c760eeb9fa32c13412fa61cb1cafcdefaeb14874c5b31351fed78",
+      "bytes": 1265
+    },
+    {
+      "file": "kc_layer_receipt.json",
+      "sha256": "57b8ba69ab643d8f39af2cf9c492aaa508e4e2cf3fb0d38d13eaa58c52879ab7",
+      "bytes": 732
+    }
+  ],
+  "cells": [
+    {
+      "family": "FLYCX-TICK",
+      "file": "fly_cx_receipt.json",
+      "verdict": "PASS",
+      "cell_hash": "c21fc6dc77fa49cb",
+      "prior_link": "cbf29ce484222325"
+    },
+    {
+      "family": "FLYCX-TICK",
+      "file": "cast_eval_receipt.json",
+      "verdict": "FAIL",
+      "cell_hash": "1767f756f1801ba7",
+      "prior_link": "c21fc6dc77fa49cb"
+    },
+    {
+      "family": "FLYCX-TICK",
+      "file": "cast_eval_v2_receipt.json",
+      "verdict": "FAIL",
+      "cell_hash": "908326979a382435",
+      "prior_link": "1767f756f1801ba7"
+    },
+    {
+      "family": "FLYCX-TICK",
+      "file": "kc_layer_receipt.json",
+      "verdict": "FAIL",
+      "cell_hash": "b1c17d743b122ba0",
+      "prior_link": "908326979a382435"
+    }
+  ],
+  "proof_head": "014e7d51305290c9",
+  "n_cells": 4,
+  "quilt_execution": {
+    "status": "AVAILABLE",
+    "path": "/tmp/MicroMoth-quilt",
+    "note": "format-compatible ledger sealed locally; BIND/TICK/PROOF hash chain equals the quilt's ledger cell semantics (fnv1a-64 chaining), quantum execution of the SIM classical-dynamics receipts is out of scope by design"
+  },
+  "honesty": "classical-dynamics receipts sealed in quilt ledger FORMAT; no quantum-biology or quantum-execution claim (FRUITFLY-JEV-MOTH sec 6). Architecture bridge only."
+}

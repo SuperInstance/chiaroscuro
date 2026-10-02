@@ -1,0 +1,70 @@
+{
+  "seed": 20261001,
+  "version": "cast-v1-graph-widening",
+  "parity_port_vs_canonical_clean": {
+    "mismatches": 0,
+    "pass": true
+  },
+  "clean_with_cast": {
+    "top1": 1,
+    "n": 50,
+    "casts": 6,
+    "overtakes": 0,
+    "fallbacks": 0,
+    "meanCandNarrow": 0.96,
+    "meanCandWide": 0.04,
+    "failures": []
+  },
+  "degraded_narrow_null": {
+    "top1": 0.931,
+    "n": 58,
+    "casts": 0,
+    "overtakes": 0,
+    "fallbacks": 0,
+    "meanCandNarrow": 0.897,
+    "meanCandWide": 0,
+    "failures": [
+      "wc05",
+      "sf10",
+      "hr08",
+      "un07"
+    ]
+  },
+  "degraded_cast": {
+    "top1": 0.931,
+    "n": 58,
+    "casts": 13,
+    "overtakes": 0,
+    "fallbacks": 0,
+    "meanCandNarrow": 0.897,
+    "meanCandWide": 0.086,
+    "failures": [
+      "wc05",
+      "sf10",
+      "hr08",
+      "un07"
+    ]
+  },
+  "delta_cast_vs_narrow_pts": 0,
+  "h_cast": {
+    "degraded_plus_10pts": false,
+    "clean_stays_perfect": true,
+    "wide_candidates_le_3x_narrow": true,
+    "pass": false
+  },
+  "sample_degraded_first3": [
+    {
+      "id": "wc01",
+      "prompt": "heavy woodcut carvig"
+    },
+    {
+      "id": "wc02",
+      "prompt": "make it look like a woodcut print"
+    },
+    {
+      "id": "wc03",
+      "prompt": "cvraed into oak"
+    }
+  ],
+  "verdict": "FAIL"
+}

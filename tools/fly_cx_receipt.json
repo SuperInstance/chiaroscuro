@@ -1,0 +1,87 @@
+{
+  "seed": 20261001,
+  "bins": 16,
+  "dt": 0.02,
+  "tau_motion": 0.35,
+  "reject_shrink": 0.7,
+  "conflict_deg": 30.0,
+  "commit_blend": 0.4,
+  "commit_gain": 0.15,
+  "a0": 0.5,
+  "model": "flycx-v2-certainty-gated",
+  "model_history": [
+    {
+      "v": "v0/v1",
+      "result": "T2 RED: cold bump rejected 90deg landmark 21/21; hard 30deg cutoff unbridgeable from 90deg gap",
+      "receipt_note": "FAIL-first preserved here"
+    },
+    {
+      "v": "v2",
+      "change": "certainty-gated capture: conflict pull scaled by (1-A); A0=0.5 neutral; COMMIT_GAIN 0.10->0.15 (model constants, sealed TESTS untouched)"
+    }
+  ],
+  "tests": {
+    "T1_zero_drift": {
+      "deg_total": 0.0,
+      "deg_per_s": 0.0,
+      "pass": true
+    },
+    "T2_consistent_anchor": {
+      "final_theta": 89.993,
+      "err_deg": 0.007,
+      "pass": true
+    },
+    "T3_conflict_reject": {
+      "amp_drop_frac": 0.3,
+      "theta_disp_deg": 0.0,
+      "pass": true
+    },
+    "T4_dark_hold": {
+      "deg_total": 0.0,
+      "pass": true
+    }
+  },
+  "null_control": {
+    "policy": "psi forced +1 on every cue",
+    "conflict_displacement_deg": 71.999,
+    "expected": "> 60 deg (proves Reject branch does the work)",
+    "pass": true
+  },
+  "verdict": "PASS",
+  "trajectory_hash_fnv1a64": "41c8af26ba55cb03",
+  "n_psi": 21,
+  "psi_counts": {
+    "commit": 16,
+    "reject": 5,
+    "abstain": 0
+  },
+  "psi_log_head": [
+    {
+      "t": 10,
+      "cue_angle": 90.0,
+      "conf": 0.8,
+      "d_pre": 90.0,
+      "psi": -1,
+      "theta_post": 18.0,
+      "amp_post": 0.35
+    },
+    {
+      "t": 20,
+      "cue_angle": 90.0,
+      "conf": 0.8,
+      "d_pre": 72.0,
+      "psi": -1,
+      "theta_post": 36.72,
+      "amp_post": 0.245
+    },
+    {
+      "t": 30,
+      "cue_angle": 90.0,
+      "conf": 0.8,
+      "d_pre": 53.28,
+      "psi": -1,
+      "theta_post": 52.811,
+      "amp_post": 0.1715
+    }
+  ]
+}

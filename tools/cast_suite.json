@@ -1,0 +1,353 @@
+{
+ "seed": 20261001,
+ "prompts": [
+  {
+   "id": "wc01",
+   "gold": "woodcut",
+   "prompt": "heavy woodcut carvig",
+   "kind": "corr"
+  },
+  {
+   "id": "wc02",
+   "gold": "woodcut",
+   "prompt": "make it look like a woodcut print",
+   "kind": "corr"
+  },
+  {
+   "id": "wc03",
+   "gold": "woodcut",
+   "prompt": "cvraed into oak",
+   "kind": "corr"
+  },
+  {
+   "id": "wc04",
+   "gold": "woodcut",
+   "prompt": "engraving style, deep cuts",
+   "kind": "corr"
+  },
+  {
+   "id": "wc05",
+   "gold": "woodcut",
+   "prompt": "blok print texture",
+   "kind": "corr"
+  },
+  {
+   "id": "wc06",
+   "gold": "woodcut",
+   "prompt": "I want carved lins lkie a relef print",
+   "kind": "corr"
+  },
+  {
+   "id": "wc07",
+   "gold": "woodcut",
+   "prompt": "woodcut",
+   "kind": "corr"
+  },
+  {
+   "id": "wc08",
+   "gold": "woodcut",
+   "prompt": "engraved copper plate look",
+   "kind": "corr"
+  },
+  {
+   "id": "wc09",
+   "gold": "woodcut",
+   "prompt": "woodcutt style please",
+   "kind": "corr"
+  },
+  {
+   "id": "wc10",
+   "gold": "woodcut",
+   "prompt": "gouged and chiseled appearance",
+   "kind": "corr"
+  },
+  {
+   "id": "tm01",
+   "gold": "terminal",
+   "prompt": "lo-fi terminal phosphor",
+   "kind": "corr"
+  },
+  {
+   "id": "tm02",
+   "gold": "terminal",
+   "prompt": "green phosphor CRT moitor",
+   "kind": "corr"
+  },
+  {
+   "id": "tm03",
+   "gold": "terminal",
+   "prompt": "retro terminal look",
+   "kind": "corr"
+  },
+  {
+   "id": "tm04",
+   "gold": "terminal",
+   "prompt": "old CRT with bloom",
+   "kind": "corr"
+  },
+  {
+   "id": "tm05",
+   "gold": "terminal",
+   "prompt": "terminal",
+   "kind": "corr"
+  },
+  {
+   "id": "tm06",
+   "gold": "terminal",
+   "prompt": "mkae it feel like a 1982 computer screen",
+   "kind": "corr"
+  },
+  {
+   "id": "tm07",
+   "gold": "terminal",
+   "prompt": "phosphor green on black",
+   "kind": "corr"
+  },
+  {
+   "id": "tm08",
+   "gold": "terminal",
+   "prompt": "lo-fi",
+   "kind": "corr"
+  },
+  {
+   "id": "tm09",
+   "gold": "terminal",
+   "prompt": "scanlines and screen glow",
+   "kind": "corr"
+  },
+  {
+   "id": "tm10",
+   "gold": "terminal",
+   "prompt": "vintage amber monitor",
+   "kind": "corr"
+  },
+  {
+   "id": "sf01",
+   "gold": "soft",
+   "prompt": "soft ambient fog",
+   "kind": "corr"
+  },
+  {
+   "id": "sf02",
+   "gold": "soft",
+   "prompt": "gentle and misty",
+   "kind": "corr"
+  },
+  {
+   "id": "sf03",
+   "gold": "soft",
+   "prompt": "foggy morning ligt",
+   "kind": "corr"
+  },
+  {
+   "id": "sf04",
+   "gold": "soft",
+   "prompt": "soft",
+   "kind": "corr"
+  },
+  {
+   "id": "sf05",
+   "gold": "soft",
+   "prompt": "anbiemt glow, low contrast",
+   "kind": "corr"
+  },
+  {
+   "id": "sf06",
+   "gold": "soft",
+   "prompt": "dreamy hzae",
+   "kind": "corr"
+  },
+  {
+   "id": "sf07",
+   "gold": "soft",
+   "prompt": "quiet and diffuse",
+   "kind": "corr"
+  },
+  {
+   "id": "sf08",
+   "gold": "soft",
+   "prompt": "sofft focus",
+   "kind": "corr"
+  },
+  {
+   "id": "sf09",
+   "gold": "soft",
+   "prompt": "mist rolling in",
+   "kind": "corr"
+  },
+  {
+   "id": "sf10",
+   "gold": "soft",
+   "prompt": "cottoo-wnol atmohpsere",
+   "kind": "corr"
+  },
+  {
+   "id": "hr01",
+   "gold": "harsh",
+   "prompt": "harsh noir hard lhgit",
+   "kind": "corr"
+  },
+  {
+   "id": "hr02",
+   "gold": "harsh",
+   "prompt": "brutal high contrast",
+   "kind": "corr"
+  },
+  {
+   "id": "hr03",
+   "gold": "harsh",
+   "prompt": "hrad shadows, crushed blacks",
+   "kind": "corr"
+  },
+  {
+   "id": "hr04",
+   "gold": "harsh",
+   "prompt": "noir",
+   "kind": "corr"
+  },
+  {
+   "id": "hr05",
+   "gold": "harsh",
+   "prompt": "harsh",
+   "kind": "corr"
+  },
+  {
+   "id": "hr06",
+   "gold": "harsh",
+   "prompt": "severe and stark",
+   "kind": "corr"
+  },
+  {
+   "id": "hr07",
+   "gold": "harsh",
+   "prompt": "unforgiving exposure",
+   "kind": "corr"
+  },
+  {
+   "id": "hr08",
+   "gold": "harsh",
+   "prompt": "hrad",
+   "kind": "corr"
+  },
+  {
+   "id": "hr09",
+   "gold": "harsh",
+   "prompt": "film nior detective office",
+   "kind": "corr"
+  },
+  {
+   "id": "hr10",
+   "gold": "harsh",
+   "prompt": "bleached daylight, deep shadow",
+   "kind": "corr"
+  },
+  {
+   "id": "df01",
+   "gold": "default",
+   "prompt": "more contrast",
+   "kind": "corr"
+  },
+  {
+   "id": "df02",
+   "gold": "default",
+   "prompt": "brihter",
+   "kind": "corr"
+  },
+  {
+   "id": "df03",
+   "gold": "default",
+   "prompt": "hello",
+   "kind": "corr"
+  },
+  {
+   "id": "df04",
+   "gold": "default",
+   "prompt": "run the pipeline",
+   "kind": "corr"
+  },
+  {
+   "id": "df05",
+   "gold": "default",
+   "prompt": "",
+   "kind": "corr"
+  },
+  {
+   "id": "adv01",
+   "gold": "soft",
+   "prompt": "soft woodcut",
+   "kind": "corr"
+  },
+  {
+   "id": "adv02",
+   "gold": "harsh",
+   "prompt": "harsh fog",
+   "kind": "corr"
+  },
+  {
+   "id": "adv03",
+   "gold": "soft",
+   "prompt": "a soft terminal glow",
+   "kind": "corr"
+  },
+  {
+   "id": "adv04",
+   "gold": "soft",
+   "prompt": "not hhrsa, keep it gentle",
+   "kind": "corr"
+  },
+  {
+   "id": "adv05",
+   "gold": "soft",
+   "prompt": "woodcut but soft and foggy",
+   "kind": "corr"
+  },
+  {
+   "id": "un01",
+   "gold": "woodcut",
+   "prompt": "chisel-cut relief print aesthetic",
+   "kind": "unseen"
+  },
+  {
+   "id": "un02",
+   "gold": "woodcut",
+   "prompt": "block printed poster with heavy ink",
+   "kind": "unseen"
+  },
+  {
+   "id": "un03",
+   "gold": "terminal",
+   "prompt": "green monochrome command line feel",
+   "kind": "unseen"
+  },
+  {
+   "id": "un04",
+   "gold": "terminal",
+   "prompt": " phosphor terminal typing vibes",
+   "kind": "unseen"
+  },
+  {
+   "id": "un05",
+   "gold": "soft",
+   "prompt": "gentle diffused morning light look",
+   "kind": "unseen"
+  },
+  {
+   "id": "un06",
+   "gold": "soft",
+   "prompt": "feathered airy delicate rendering",
+   "kind": "unseen"
+  },
+  {
+   "id": "un07",
+   "gold": "harsh",
+   "prompt": "brutalist razor edge contrast",
+   "kind": "unseen"
+  },
+  {
+   "id": "un08",
+   "gold": "harsh",
+   "prompt": "searing overexposed stark finish",
+   "kind": "unseen"
+  }
+ ]
+}
