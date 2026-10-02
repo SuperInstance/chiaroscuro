@@ -32,17 +32,23 @@ function flatten(graph) {
 }
 
 function editDistance1(a, b) {
-  if (Math.abs(a.length - b.length) > 1) return false;
-  let i = 0, j = 0, diff = 0;
-  while (i < a.length && j < b.length) {
-    if (a[i] === b[j]) { i++; j++; continue; }
-    diff++;
-    if (diff > 1) return false;
-    if (a.length === b.length) { i++; j++; }
-    else if (a.length < b.length) { j++; }
-    else { i++; }
+  return editDistanceN(a, b, 1);
+}
+
+// bounded Levenshtein (O(len(a)*maxDist) band); true iff distance <= maxDist
+function editDistanceN(a, b, maxDist) {
+  if (Math.abs(a.length - b.length) > maxDist) return false;
+  let prev = [];
+  for (let j = 0; j <= b.length; j++) prev[j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    let cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+    }
+    prev = cur;
   }
-  return diff + (a.length - i) + (b.length - j) <= 1;
+  return prev[b.length] <= maxDist;
 }
 
 function tokenize(prompt) {
@@ -107,7 +113,16 @@ function match(graph, flat, prompt) {
   return hits;
 }
 
-function routePrompt(graph, flat, prompt) {
+// CAST widening (JEV v2, docs/HOLDCAST-pre-registration.md — sealed pre-run):
+// when the best score is below route_threshold (evidence absence — v1 would
+// route default), CAST fires ONCE: synonym neighbors (edit distance <=2) of
+// matched terms enter scoring at weight * neighbor_factor (0.5), then re-score.
+const CAST_NEIGHBOR_DIST = 2;
+const CAST_NEIGHBOR_FACTOR = 0.5;
+
+function routePrompt(graph, flat, prompt, opts) {
+  opts = opts || {};
+  const castWidening = opts.castWidening !== false; // v2 default on; v1 null-control passes false
   const cfg = graph.config;
   const p = prompt.toLowerCase();
   let hits = match(graph, flat, p);
@@ -152,9 +167,52 @@ function routePrompt(graph, flat, prompt) {
     else if (scores[c] === scores[best] && firstPos[c] < firstPos[best]) best = c; // pre-registered tiebreak
   }
 
-  const cls = best || "default";
+  let cls = best || "default";
+  let castFired = false;
+  // CAST: structured exploration on evidence absence (odor-OFF casting).
+  // Revision 1 (pre-reg): fires whenever best === null — whether hits exist or
+  // not. No hits: every prompt word >= fuzzy_min_term_len is a base; hits: only
+  // matched-term roots. Neighbors = graph terms at edit distance <=2, weight x0.5.
+  if (castWidening && best === null) {
+    const bases = [];
+    if (hits.length > 0) {
+      for (const h of hits) bases.push(h.term.split("~").pop());
+    } else {
+      for (const t of tokenize(p)) {
+        const word = t.w.replace(/^[^a-z0-9\-]+|[^a-z0-9\-]+$/g, "");
+        if (word.length >= cfg.fuzzy_min_term_len) bases.push(word);
+      }
+    }
+    const neighbors = [];
+    for (const base of bases) {
+      for (const t of flat) {
+        if (!t.phrase && t.term === base) continue;
+        if (Math.abs(t.term.length - base.length) > CAST_NEIGHBOR_DIST) continue;
+        if (editDistanceN(base, t.term, CAST_NEIGHBOR_DIST)) {
+          neighbors.push({ cls: t.cls, term: `${base}~${t.term}(cast)`, weight: t.weight * CAST_NEIGHBOR_FACTOR });
+        }
+      }
+    }
+    if (neighbors.length > 0) {
+      const seenCls = {};
+      for (const n of neighbors) {
+        scores[n.cls] = (scores[n.cls] || 0) + n.weight;
+        if (!(n.cls in firstPos)) firstPos[n.cls] = 0;
+        (seenCls[n.cls] ||= []).push(n.term);
+      }
+      let castBest = null;
+      for (const c of Object.keys(scores)) {
+        if (scores[c] < cfg.route_threshold) continue;
+        if (castBest === null) { castBest = c; continue; }
+        if (scores[c] > scores[castBest]) castBest = c;
+        else if (scores[c] === scores[castBest]) castBest = c; // single-term neighbors: keep first (deterministic)
+      }
+      if (castBest !== null) { best = castBest; cls = castBest; castFired = true; hits = hits.concat(neighbors); }
+    }
+  }
   return {
     class: cls,
+    cast: castFired,
     dials: (graph.classes[cls] || {}).dials || graph.default_dials,
     score: best ? scores[best] : 0,
     hits: hits.map(h => `${h.cls}:${h.term}${h.fuzzy ? "(fuzzy)" : ""}@${h.pos}`),

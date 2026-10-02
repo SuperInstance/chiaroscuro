@@ -13,6 +13,14 @@
  *   neighbor of a loud cell is suspect. Upgrade rule is one-way per frame
  *   (Abstain→Value, Formula→Value); never downgrades.
  *
+ * HOLD/CAST (JEV v2, docs/HOLDCAST-pre-registration.md — sealed pre-run):
+ *   Abstain frames are classified by abstainMode(ci):
+ *     HOLD — default: keep prior, no dispatch (darkness straight-flight).
+ *     CAST — (a) the cell's last nonzero ψ was −1 (rejection just happened),
+ *            or (b) belief amplitude (EMA of |evidence|, decay 0.9/frame)
+ *            < beliefFloor (default 0.10). CAST is capped at 1 per cell per
+ *            castWindow frames (default 16); every CAST counted in this.casts.
+ *
  * All state is plain typed arrays; zero allocation in update().
  */
 (function (global) {
@@ -28,6 +36,16 @@
     this.tauStatic = (opts.tauStatic !== undefined) ? opts.tauStatic : TAU_STATIC_DEFAULT;
     this.coherenceRadius = (opts.coherenceRadius !== undefined) ? opts.coherenceRadius : 0;
     this.cols = (opts.cols !== undefined) ? opts.cols : 120;
+    // JEV v2 belief register (pre-registered: decay 0.9, floor 0.10, window 16)
+    this.beliefDecay = (opts.beliefDecay !== undefined) ? opts.beliefDecay : 0.9;
+    this.beliefFloor = (opts.beliefFloor !== undefined) ? opts.beliefFloor : 0.10;
+    this.castWindow = (opts.castWindow !== undefined) ? opts.castWindow : 16;
+    this._belief = new Float32Array(this.numCells); // EMA of |evidence| per cell
+    this._lastPsi = new Int8Array(this.numCells);   // last nonzero ψ (1 / -1)
+    this._sinceCast = new Uint16Array(this.numCells);
+    this._sinceCast.fill(this.castWindow); // first cast is immediately eligible
+    this.casts = 0;   // CAST-classified abstain frames (receipted)
+    this.holds = 0;   // HOLD-classified abstain frames
     // per-cell class: 1 Value, 0 Formula, -1 Abstain
     this._cls = new Int8Array(this.numCells);
     // 1 after the cell has been seen once (frame 0 = all Value)
@@ -41,7 +59,11 @@
 
   JevGate.prototype.reset = function () {
     this._seen.fill(0);
+    this._belief.fill(0);
+    this._lastPsi.fill(0);
+    this._sinceCast.fill(0);
     this.dispatched = 0; this.skipped = 0; this.formula = 0;
+    this.casts = 0; this.holds = 0;
   };
 
   /**
@@ -61,6 +83,11 @@
       if (d > this.tauMotion) cls = 1;
       else if (d >= this.tauStatic) cls = 0;
       else cls = -1;
+      // belief register update (JEV v2): EMA of |evidence| on seen frames;
+      // first sight initializes the prior and does not count as evidence.
+      // last nonzero ψ tracked for CAST eligibility (1 here; −1 via markRejected())
+      this._belief[ci] = this._belief[ci] * this.beliefDecay + d * (1 - this.beliefDecay);
+      if (cls === 1) this._lastPsi[ci] = 1;
     }
     this._prev[ci] = v;
     this._cls[ci] = cls;
@@ -109,6 +136,33 @@
   /** classOf(ci) — raw class. */
   JevGate.prototype.classOf = function (ci) {
     return this._cls[ci];
+  };
+
+  /**
+   * abstainMode(ci) — JEV v2: classify the cell's CURRENT Abstain frame.
+   *   CAST iff (last nonzero ψ was −1 OR belief < floor) AND this cell's cast
+   *   cooldown (castWindow abstain-frames) has elapsed — i.e. max ONE cast per
+   *   cell per castWindow abstain frames. Per-cell clock: ticks on this cell's
+   *   own abstain frames. Counters ride this.casts / this.holds (receipted).
+   */
+  JevGate.prototype.abstainMode = function (ci) {
+    var cast = false;
+    if ((this._lastPsi[ci] === -1 || this._belief[ci] < this.beliefFloor) &&
+        this._sinceCast[ci] >= this.castWindow) {
+      cast = true;
+      this._sinceCast[ci] = 0;
+    } else if (this._sinceCast[ci] < this.castWindow) {
+      this._sinceCast[ci]++;
+    }
+    if (cast) { this.casts++; return 1; } // 1 = CAST
+    this.holds++; return 0;              // 0 = HOLD
+  };
+
+  /** markRejected(ci) — host calls when a cue at this cell was REJECTED (ψ=−1
+   *  on evidence grounds outside luma, e.g. conflicting landmark): sets the
+   *  last-nonzero-ψ register so the next abstain frame is CAST-eligible. */
+  JevGate.prototype.markRejected = function (ci) {
+    this._lastPsi[ci] = -1;
   };
 
   /**
